@@ -8,6 +8,9 @@ public class BasicYahtzee
   {
     Random rand = new Random();
     int[] rolls = new int[5];
+    int[] scoreBoard = new int[13];
+    Scanner cat = new Scanner(System.in);
+    int score=0;
 
 
     System.out.println("Hello There, Rolling 5 Dice");
@@ -17,28 +20,32 @@ public class BasicYahtzee
     {
       for(int i =0; i < rolls.length; i++)
       {
-       rolls[i]= rand.nextInt(5)+1;
+       rolls[i]= rand.nextInt(6)+1;
        System.out.println(rolls[i]);
       }
       printList();
-      int score;
-      score = categories(rolls);
+
+      int choice = cat.nextInt();
+
+      while(choice < 1 || choice > 13 || scoreBoard[choice-1]==1 )
+      {
+        System.out.println("Option already taken or invalid");
+        choice = cat.nextInt();
+      }
+
+      scoreBoard[choice-1] = 1;
+
+      score += categories(rolls, choice);
 
       System.out.println("current score is:" + score);
-
-      return;
     }
 
-
+    cat.close();
   }
 
 
-  public static int categories(int[] rolls)
+  public static int categories(int[] rolls, int choice)
   {
-  
-    Scanner cat = new Scanner(System.in);
-    int choice = cat.nextInt();
-    cat.close();
     int score = 0;
 
     for(int i =0; i< rolls.length; i++)
@@ -62,13 +69,13 @@ public class BasicYahtzee
 
     System.out.println("\n lower section: \n");
 
-    System.out.println("3 of a Kind | Total of all 5 dice: Enter 3k");
-    System.out.println("4 of a Kind | Total of all 5 dice: Enter 4k");
-    System.out.println("Full House | 25 points: Enter fh");
-    System.out.println("Small Straight | 30 points: Enter ss");
-    System.out.println("Large Straight | 40 points: Enter ls");
-    System.out.println("YAHTZEE! | 50 points: Enter y");
-    System.out.println("Chance | Total of all 5 dice: Enter c");
+    System.out.println("3 of a Kind | Total of all 5 dice: Enter 7");
+    System.out.println("4 of a Kind | Total of all 5 dice: Enter 8");
+    System.out.println("Full House | 25 points: Enter 9");
+    System.out.println("Small Straight | 30 points: Enter 10");
+    System.out.println("Large Straight | 40 points: Enter 11");
+    System.out.println("YAHTZEE! | 50 points: Enter 12");
+    System.out.println("Chance | Total of all 5 dice: Enter 13");
   }
 
 }
