@@ -9,55 +9,120 @@ public class BasicYahtArrayList
   public static void main(String args[])
   {
     Random rand = new Random();
-    int[] rolls = new int[5];
-    ArrayList<Integer> scoreBoard = new ArrayList<Integer>(13);
+    ArrayList<Integer> rolls = new ArrayList<Integer>(5);
+    int[] scoreBoard = new int[13];
     Scanner cat = new Scanner(System.in);
     int score=0;
 
-    for(int i =0; i < 13; i++)
-    {
-        scoreBoard.add(0);
-    }
+    for (int i =0; i < 5; i++)
+        rolls.add(0); // intialize arraylist
 
     System.out.println("Hello There, Rolling 5 Dice");
     System.out.println("You rolled a:");
 
     for (int j = 0; j>-1; j++)
     {
-      for(int i =0; i < rolls.length; i++)
-      {
-       rolls[i]= rand.nextInt(6)+1;
-       System.out.println(rolls[i]);
-      }
-      printList();
+      for(int i =0; i < 5; i++)
+       rolls.set(i,rand.nextInt(6)+1);
 
+      Collections.sort(rolls); // sort in between print out for user readibility
+
+      for(int i =0; i < rolls.size(); i++)
+        System.out.print("\t"+rolls.get(i));
+      
+      
+     // printList();
+      
       int choice = cat.nextInt();
 
-      while(choice < 1 || choice > 13 || scoreBoard.get(choice-1)==1 )
+      while(choice < 1 || choice > 13 || scoreBoard[choice-1]>0 )
       {
         System.out.println("Option already taken or invalid");
         choice = cat.nextInt();
       }
 
-      scoreBoard.set(choice-1,1);
-
-      score += categories(rolls, choice);
+      scoreBoard[choice-1] = categories(rolls, choice);
+      score += scoreBoard[choice-1];
 
       System.out.println("current score is:" + score);
+      System.out.println("Score for category " +(choice-1)+ " is " + scoreBoard[choice-1]);
     }
 
     cat.close();
   }
 
 
-  public static int categories(int[] rolls, int choice)
+  public static int categories(ArrayList<Integer> rolls, int choice)
   {
     int score = 0;
-
-    for(int i =0; i< rolls.length; i++)
+   
+    if (choice < 7)
     {
-      if(rolls[i]== choice)
-      score+=choice;
+        for(int i =0; i< rolls.size(); i++)
+        {
+        if(rolls.get(i)== choice)
+        score+=choice;
+        }
+
+        return score;
+    }
+    
+    if (choice == 7 || choice == 8)
+    {
+        int threeKind = Collections.frequency(rolls, rolls.get(0));
+        int threeKind2 = Collections.frequency(rolls, rolls.get(4));
+        if(choice==7)
+        {
+            if (threeKind > 2 || threeKind2 > 2)
+            {
+                for(int total : rolls)
+                    score+=total;
+            }
+        }
+        else if (choice == 8)
+        {
+            if (threeKind > 3 || threeKind2 > 3)
+            {
+                for(int total : rolls)
+                    score+=total;
+            }
+        }
+        
+            return score;
+            
+    }
+
+    if (choice == 9)
+    {
+        int fullHouse = Collections.frequency(rolls, rolls.get(0));
+        int fullHouse2 = Collections.frequency(rolls, rolls.get(4));
+
+         if  (  (fullHouse > 1 & fullHouse2 > 2) || (fullHouse > 2 && fullHouse2 > 1)  )
+        {
+            for(int total : rolls)
+            score+=total;
+        }
+    }
+
+    if (choice == 10)
+    score+=30;
+    if (choice == 11)
+    score += 40;
+
+    if (choice == 12)
+    {
+        int fiveKind = Collections.frequency(rolls, rolls.get(0));
+        if (fiveKind > 4)
+        {
+            for(int total : rolls)
+                score+=total;
+        }
+    }
+
+    if (choice == 13)
+    {
+        for(int total : rolls)
+            score+=total;
     }
 
     return score;
