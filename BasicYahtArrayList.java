@@ -1,7 +1,9 @@
 import java.util.Random; // roll dice
 import java.util.Scanner; // user input
+import java.util.stream.Collectors;
 import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
+import java.util.List;
 
 public class BasicYahtArrayList
 {
@@ -12,6 +14,9 @@ public class BasicYahtArrayList
     ArrayList<Integer> rolls = new ArrayList<Integer>(5); // consider making it 2d to mark wheter player set dice aside for reroll
     int[] scoreBoard = new int[13]; // tracks scores for each category
     Scanner cat = new Scanner(System.in); // input/scanner obj
+
+    for (int i = 0; i<13; i++)
+    scoreBoard[i]=-1;// intialize scoreboard
 
     int score=0; // tracks overall score
     int reroll = 0; // tracks rerolls available
@@ -48,7 +53,7 @@ public class BasicYahtArrayList
       
       int choice = cat.nextInt(); // get user input for category
 
-      while(choice < 1 || choice > 13 || scoreBoard[choice-1]>0 ) //  while choice is taken or not a valid choice, alert user and prompt for input
+      while(choice < 1 || choice > 13 || scoreBoard[choice-1]>-1 ) //  while choice is taken or not a valid choice, alert user and prompt for input
       {
         System.out.println("Option already taken or invalid");
         choice = cat.nextInt();
@@ -83,10 +88,11 @@ public class BasicYahtArrayList
     if (choice == 7 || choice == 8) // if 7 or 8 check frequency for three of a kind or four of a kind. If valid score is sum off all dice, otherwise 0
     {
         int threeKind = Collections.frequency(rolls, rolls.get(0));
+        int threeKindMid = Collections.frequency(rolls, rolls.get(2));
         int threeKind2 = Collections.frequency(rolls, rolls.get(4));
         if(choice==7)
         {
-            if (threeKind > 2 || threeKind2 > 2)
+            if (threeKind > 2 || threeKind2 > 2 || threeKindMid > 2)
             {
                 for(int total : rolls)
                     score+=total;
@@ -117,9 +123,55 @@ public class BasicYahtArrayList
     }
 
     if (choice == 10) // if 10 look for small straight, 4 in a row. Score is 30
-    score+=30;
+    {
+      List<Integer> Straights = rolls.stream().distinct().collect(Collectors.toList());
+      if(Straights.size()<4) // convert rolls into distinct list with uniques integers
+      return score; // if size is less than 4, than can't be a small straight
+
+      boolean straight=true;
+
+        for(int i=0; i<3; i++)
+        {
+         if (Straights.get(i)!=Straights.get(i+1)-1)
+         straight=false;
+        }
+         if(straight==true)
+         return 30;
+      
+      //otherwise size is 5
+      if(Straights.size()==5)
+      {
+        for(int i=1; i<Straights.size()-1; i++)
+        {
+         if (Straights.get(i)!=Straights.get(i+1)-1)
+         straight=false;
+        }
+        if(straight==true)
+        return 30;
+
+        for(int i=0; i<Straights.size()-2; i++)
+        { 
+         if (Straights.get(i)!=Straights.get(i+1)-1)
+         straight=false;
+       }
+        if(straight==true)
+        return 30;
+      }
+      return score;
+    }
     if (choice == 11) // if 11 look for large straight, 5 in a row. Score is 40
-    score += 40;
+    {
+      boolean straight=true;
+      for(int i=0; i<rolls.size()-1; i++)
+      {
+        if (rolls.get(i)!=rolls.get(i+1)-1)
+        straight=false;
+      }
+      if(straight==true)
+      score += 40;
+
+      return score;
+    }
 
     if (choice == 12) // if 12 look for five of a kind. Score is 50, YAHTZEE
     {
