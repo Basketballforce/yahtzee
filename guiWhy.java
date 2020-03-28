@@ -32,7 +32,9 @@ public class guiWhy extends Application
     Button button2; // click to start playing
     Button roll = new Button("Roll!"); // button to roll dice 
     Label numberPlayers = new Label("Number of players: " + players); // label that contain's the amount of players playing
-    TextField input = new TextField("1"); // field for the number of players playing
+    Label rollVal = new Label("You rolled a: "); // value of the roll
+    Label curPlayer = new Label(""+(currentPlayer+1)); // who the current player is
+    TextField input = new TextField("# of players?"); // field for the number of players playing
     public static void main(String[] args) { // main, runs start function
         launch(args);
     }
@@ -52,11 +54,11 @@ public class guiWhy extends Application
         //Layout 1 - elements in vertical column
         VBox layout1 = new VBox(20);
         layout1.getChildren().addAll(label1, input, button2);
-        scene1 = new Scene(layout1, 200, 200);
+        scene1 = new Scene(layout1, 350, 300);
 
 
         //Button 2
-        Button button2 = new Button("This sucks, go back to scene 1");
+        Button button2 = new Button("Go back to scene 1");
         button2.setOnAction(e -> window.setScene(scene1));
 
         Button button3 = new Button("Increment current player by 1");
@@ -67,8 +69,8 @@ public class guiWhy extends Application
 
         //Layout 2
         VBox layout2 = new VBox(20);
-        layout2.getChildren().addAll(button2,button3, numberPlayers, roll);
-        scene2 = new Scene(layout2, 600, 300);
+        layout2.getChildren().addAll(button2,button3, numberPlayers, roll, rollVal,curPlayer);
+        scene2 = new Scene(layout2, 350, 300);
 
         //Display scene 1 at first
         window.setScene(scene1);
@@ -105,6 +107,7 @@ public class guiWhy extends Application
     public void setCurrentPlayer()
     {
         currentPlayer=(currentPlayer+1)%players;
+        curPlayer.setText(""+(currentPlayer+1));
         System.out.print(currentPlayer);
     }
 
@@ -121,6 +124,8 @@ public class guiWhy extends Application
      // USED TO BE INFINITE LOOP
    public void YahtzeeRollLogic()
    {
+        rollVal.setText("You rolled a: "); // reset roll label
+
          if(gameOver(playerobj))
           return; // change to bool or kill statement
  
@@ -134,16 +139,21 @@ public class guiWhy extends Application
        System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN");
        reroll=0; // rest reroll
        
+       int rolled; // track single roll value
         // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
        for(int i =0; i < 5; i++)
-        playerobj[currentPlayer].setRoll(i, rand.nextInt(6)+1);
+       {
+        rolled = rand.nextInt(6)+1;
+        playerobj[currentPlayer].setRoll(i, rolled);
+        rollVal.setText(rollVal.getText()+ " " +rolled);
+       }
  
         playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
  
        for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
          System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  
  
-       System.out.println("\nREROLL? 1 for yes, 0 for no");
+       System.out.println("\nREROLL?");
        return;
        }
 
