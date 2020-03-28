@@ -11,7 +11,7 @@ import java.util.Random; // roll dice
 import java.util.stream.Collectors;
 import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
-import java.util.List;
+import java.util.List;  // for list
 
 
 public class guiWhy extends Application
@@ -22,34 +22,36 @@ public class guiWhy extends Application
     private int currentPlayer = 0; // increment by one every main loop,  helps track current player
     private Random rand = new Random(); // random for roll
     private int reroll = 0; // tracks rerolls available
-    private int yesNo; // tracks user input related to reroll (if they want to reroll)
+    private int yesNo=0; // tracks user input related to reroll (if they want to reroll)
+    Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
+    ArrayList<Integer> rolls; // holds roll values
 
     // gui vars
-    Stage window;
-    Scene scene1, scene2;
-    Button button2;
-    Button numberPlayers = new Button("Number of players: " + players);;
-
-    public static void main(String[] args) {
+    Stage window; // main windows that gui runs ins
+    Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
+    Button button2; // click to start playing
+    Button roll = new Button("Roll!"); // button to roll dice 
+    Label numberPlayers = new Label("Number of players: " + players); // label that contain's the amount of players playing
+    TextField input = new TextField("1"); // field for the number of players playing
+    public static void main(String[] args) { // main, runs start function
         launch(args);
     }
 
-    @Override
+    @Override // required for start, which is pulled from application class
     public void start(Stage primaryStage) {
-        window = primaryStage;
+        window = primaryStage; // set window to primary stage
 
         //Button 1
-        Label label1 = new Label("Welcome to the first scene!");
-        Button button1 = new Button("Go to scene 2");
-        button1.setOnAction(e -> window.setScene(scene2));
+        Label label1 = new Label("Welcome to the first scene!"); // set up welcome label
+       // Button button1 = new Button("Go to scene 2"); // no longer needed
+       // button1.setOnAction(e -> window.setScene(scene2)); 
 
-        TextField input = new TextField("1");
-        button2 = new Button("Click me to play");
-        button2.setOnAction(e->setPlayer(input));
+        button2 = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
+        button2.setOnAction(e->setPlayer(input)); 
 
-        //Layout 1 - children laid out in vertical column
+        //Layout 1 - elements in vertical column
         VBox layout1 = new VBox(20);
-        layout1.getChildren().addAll(label1, button1, input, button2);
+        layout1.getChildren().addAll(label1, input, button2);
         scene1 = new Scene(layout1, 200, 200);
 
 
@@ -60,29 +62,39 @@ public class guiWhy extends Application
         Button button3 = new Button("Increment current player by 1");
         button3.setOnAction(e -> setCurrentPlayer());
 
+        // Button Roll
+        roll.setOnAction(e->YahtzeeRollLogic());
+
         //Layout 2
         VBox layout2 = new VBox(20);
-        layout2.getChildren().addAll(button2,button3, numberPlayers);
+        layout2.getChildren().addAll(button2,button3, numberPlayers, roll);
         scene2 = new Scene(layout2, 600, 300);
 
         //Display scene 1 at first
         window.setScene(scene1);
-        window.setTitle("Title Here");
+        window.setTitle("Yahtzee!");
         window.show();
     }
 
-    public int setPlayer(TextField input)
-    {
-        if(input.getText()==null)
+    public void setPlayer(TextField input)
+    {         // Try-catch that catches if entered value is not a valid integer
+        try            
         {
-
+            players = Integer.parseInt(input.getText());    
+        } catch (NumberFormatException e) 
+        {
+            input.setText("Invalid value! Please enter a positive number");
+            return;
         }
-        players = Integer.parseInt(input.getText());
+            // Checks that passed in int is greater than 0s
+        if(Integer.parseInt(input.getText())<1)
+        return;
 
         System.out.println(players);
-        YahtzeeSetupLogic(players);
+        YahtzeeSetupLogic();
         numberPlayers.setText("Number of players: "+players);
-        return players;
+        window.setScene(scene2);
+        return;
     }
 
     public int getPlayer()
@@ -97,28 +109,22 @@ public class guiWhy extends Application
     }
 
     
-   public static void YahtzeeSetupLogic(int nPlayers)
+   public void YahtzeeSetupLogic()
    {
-       System.out.print("Function started with given parameter"+ nPlayers);
-     //Scanner cat = new Scanner();
-     int numPlayers = nPlayers;
+     System.out.print("Function started with given parameter "+ players + " ");
+     playerobj = new Multiplayer[players];
  
-     Multiplayer[] players = new Multiplayer[numPlayers];
- 
-     for(int i =0; i<numPlayers; i++)
-     players[i] = new Multiplayer(); // intialize player array
+     for(int i =0; i<players; i++)
+     playerobj[i] = new Multiplayer(); // intialize player array
    }
  
      // USED TO BE INFINITE LOOP
-   public static void YahtzeeGameLogic(Multiplayer[] players, int currentPlayer, int numPlayers, int reroll, int yesNo, Random rand)
+   public void YahtzeeRollLogic()
    {
-         if(gameOver(players))
-          return;
+         if(gameOver(playerobj))
+          return; // change to bool or kill statement
  
-         currentPlayer = (currentPlayer % numPlayers); 
- 
- 
-         if(fullScorecard(players[currentPlayer]))
+         if(fullScorecard(playerobj[currentPlayer]))
          {
            System.out.println("Player is out of rolls!");
            currentPlayer++;
@@ -127,42 +133,47 @@ public class guiWhy extends Application
         
        System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN");
        reroll=0; // rest reroll
-       do{ // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
+       
+        // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
        for(int i =0; i < 5; i++)
-        players[currentPlayer].setRoll(i, rand.nextInt(6)+1);
+        playerobj[currentPlayer].setRoll(i, rand.nextInt(6)+1);
  
-        players[currentPlayer].sortRoll(); // sort in between print out for user readibility
+        playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
  
-       for(int i =0; i < players[currentPlayer].getRollSize(); i++) // print out roll
-         System.out.print("\t"+ players[currentPlayer].getRoll(i));  
+       for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
+         System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  
  
        System.out.println("\nREROLL? 1 for yes, 0 for no");
+       return;
+       }
+
+       
+       public void yahtzeeReRoll()
+       {
       // yesNo = cat.nextInt();
       yesNo=0;
        if (yesNo == 0) // break if user doesn't want to reroll
-       break;
+       return;
  
          reroll++; // allow three rerolls
-       }while(reroll < 3); // END OF DO WHILE LOOP
        
        //int choice = cat.nextInt(); // get user input for category
        int choice = 1;
-       while(choice < 1 || choice > 13 || players[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken or not a valid choice, alert user and prompt for input
+       while(choice < 1 || choice > 13 || playerobj[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken or not a valid choice, alert user and prompt for input
        {
-         System.out.println("Option already taken or invalid" +numPlayers);
+         System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
          //choice = cat.nextInt();
          choice =2;
        }
  
-       players[currentPlayer].setScoreboard(choice-1,categories(players[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
-       players[currentPlayer].setScore(players[currentPlayer].getScoreboard(choice-1)); // assign total score to itself + new points from category
+       playerobj[currentPlayer].setScoreboard(choice-1,categories(playerobj[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
+       playerobj[currentPlayer].setScore(playerobj[currentPlayer].getScoreboard(choice-1)); // assign total score to itself + new points from category
  
-       System.out.println("current score is:" + players[currentPlayer].getScore()); // print our current score and score for that specific roll
-       System.out.println("Score for category " +choice+ " is " + players[currentPlayer].getScoreboard(choice -1));
+       System.out.println("current score is:" + playerobj[currentPlayer].getScore()); // print our current score and score for that specific roll
+       System.out.println("Score for category " +choice+ " is " + playerobj[currentPlayer].getScoreboard(choice -1));
        currentPlayer++;
      }
  
-     //cat.close(); // close scanner
    
  
    public static int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
