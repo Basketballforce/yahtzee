@@ -13,7 +13,7 @@ public class BasicYahtzee
     System.out.println("Hello There, Rolling 5 Dice");
     System.out.println("You rolled a:");
 
-    for (int j = 0; j>-1; j++)
+    for (int j = 0; j>-1;)
     {
       for(int i =0; i < rolls.length; i++)
       {

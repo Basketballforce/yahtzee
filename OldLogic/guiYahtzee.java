@@ -1,3 +1,5 @@
+
+
 import java.util.Random; // roll dice
 import java.util.Scanner; // user input
 import java.util.stream.Collectors;
@@ -5,15 +7,100 @@ import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
 import java.util.List;
 
-public class BasicMultiplayer
+import javax.swing.*;
+
+import javafx.scene.control.Button;
+
+import java.awt.*;
+import java.awt.event.*;
+
+
+public class guiYahtzee extends JFrame 
 {
-  public static void main(String args[])
+   private JTextField textField1; // text field with set size
+   private JTextField textField2; // text field constructed with text
+   private JTextField textField3; // text field with text and size
+   private JPasswordField passwordField; // password field with text
+
+   // TextFieldFrame constructor adds JTextFields to JFrame
+   public guiYahtzee()
+   {
+      super( "Testing JTextField and JPasswordField" );
+      setLayout( new FlowLayout() ); // set frame layout
+
+      // construct textfield with 10 columns
+      textField1 = new JTextField( 10 ); 
+      add( textField1 ); // add textField1 to JFrame
+
+      // construct textfield with default text
+      textField2 = new JTextField( "Enter text here" );
+      add( textField2 ); // add textField2 to JFrame
+
+      // construct textfield with default text and 21 columns
+      textField3 = new JTextField( "Uneditable text field", 21 );
+      textField3.setEditable( false ); // disable editing
+      add( textField3 ); // add textField3 to JFrame
+
+      // construct passwordfield with default text
+      passwordField = new JPasswordField( "Hidden text" );
+      add( passwordField ); // add passwordField to JFrame
+
+      // register event handlers
+      TextFieldHandler handler = new TextFieldHandler();
+      textField1.addActionListener( handler );
+      textField2.addActionListener( handler );
+      textField3.addActionListener( handler );
+      passwordField.addActionListener( handler );
+   } // end TextFieldFrame constructor
+
+   // private inner class for event handling
+   private class TextFieldHandler implements ActionListener 
+   {
+      // process textfield events
+      public void actionPerformed( ActionEvent event )
+      {
+         String string = ""; // declare string to display
+
+         // user pressed Enter in JTextField textField1
+         if ( event.getSource() == textField1 )
+            string = String.format( "textField1: %s",
+               event.getActionCommand() );
+
+         // user pressed Enter in JTextField textField2
+         else if ( event.getSource() == textField2 )
+            string = String.format( "textField2: %s",
+               event.getActionCommand() );
+
+         // user pressed Enter in JTextField textField3
+         else if ( event.getSource() == textField3 )
+            string = String.format( "textField3: %s", 
+               event.getActionCommand() );
+
+         // user pressed Enter in JTextField passwordField
+         else if ( event.getSource() == passwordField )
+            string = String.format( "passwordField: %s", 
+               new String( passwordField.getPassword() ) );
+
+         // display JTextField content
+         JOptionPane.showMessageDialog( null, string ); 
+      } // end method actionPerformed
+   } // end private inner class TextFieldHandler
+
+    private void closeProgram()
+    {
+        System.out.println("Hello There");
+    }
+
+
+
+
+
+    
+
+  public static void YahtzeeLogic(int nPlayers)
   {
-
-    Scanner cat = new Scanner(System.in); // input/scanner obj
-    System.out.println("Welcome to Yahtzee! How many players?"); // prompt user for player count
-
-    int numPlayers = cat.nextInt(); // int equal to number of players
+    //Scanner cat = new Scanner();
+    int numPlayers = nPlayers;
     int currentPlayer = 0; // increment by one every main loop,  helps track current player
 
     Multiplayer[] players = new Multiplayer[numPlayers];
@@ -26,17 +113,11 @@ public class BasicMultiplayer
     int reroll = 0; // tracks rerolls available
     int yesNo; // tracks user input related to reroll (if they want to reroll)
 
-    System.out.println("Hello There, Rolling 5 Dice");
-    System.out.println("You rolled a:");
-
     for (int j = 0; j>-1; j++) // main loop that runs infinitely (supposed to terminate when scoreboard is full/ all elements not 0)
     {
 
         if(gameOver(players))
-        {  
-         cat.close(); // close scanner
          return;
-        }
 
         currentPlayer = (currentPlayer % numPlayers); 
 
@@ -60,22 +141,21 @@ public class BasicMultiplayer
         System.out.print("\t"+ players[currentPlayer].getRoll(i));  
 
       System.out.println("\nREROLL? 1 for yes, 0 for no");
-      yesNo = cat.nextInt();
+     // yesNo = cat.nextInt();
+     yesNo=0;
       if (yesNo == 0) // break if user doesn't want to reroll
       break;
 
         reroll++; // allow three rerolls
       }while(reroll < 3); // END OF DO WHILE LOOP
-       
       
-      printList(players[currentPlayer]); // prints options/categories for user to score their roll
-      
-      int choice = cat.nextInt(); // get user input for category
-
+      //int choice = cat.nextInt(); // get user input for category
+      int choice = 1;
       while(choice < 1 || choice > 13 || players[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken or not a valid choice, alert user and prompt for input
       {
-        System.out.println("Option already taken or invalid");
-        choice = cat.nextInt();
+        System.out.println("Option already taken or invalid" +numPlayers);
+        //choice = cat.nextInt();
+        choice =2;
       }
 
       players[currentPlayer].setScoreboard(choice-1,categories(players[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
@@ -85,9 +165,9 @@ public class BasicMultiplayer
       System.out.println("Score for category " +choice+ " is " + players[currentPlayer].getScoreboard(choice -1));
       currentPlayer++;
     }
-    cat.close(); // close scanner... NOT NECCESSARRY HERE, does this when in return statement above
-  }
 
+    //cat.close(); // close scanner
+  }
 
   public static int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
   {
@@ -210,27 +290,6 @@ public class BasicMultiplayer
     }
 
     return score;
-  }
-
-  public static void printList(Multiplayer catScore) // prompts user to score in a category for dice roll and give them their current score for each one. -1 defualt/not scored yet
-  {
-    System.out.println("Select where you would like to score:");
-    System.out.println("Aces (Ones) | Total of Aces only: Enter 1 \t" + catScore.getScoreboard(0));
-    System.out.println("Twos | Total of twos only: Enter 2 \t" + catScore.getScoreboard(1));
-    System.out.println("Threes | Total of Thress only: Enter 3 \t"+ catScore.getScoreboard(2));
-    System.out.println("Fours | Total of Fours only: Enter 4 \t"+ catScore.getScoreboard(3));
-    System.out.println("Fives | Total of Fives only: Enter 5 \t"+ catScore.getScoreboard(4));
-    System.out.println("Sixes | Total of Sixes only:Enter 6 \t"+ catScore.getScoreboard(5));
-
-    System.out.println("\n lower section: \n");
-
-    System.out.println("3 of a Kind | Total of all 5 dice: Enter 7 \t"+ catScore.getScoreboard(6));
-    System.out.println("4 of a Kind | Total of all 5 dice: Enter 8 \t"+ catScore.getScoreboard(7));
-    System.out.println("Full House | 25 points: Enter 9 \t"+ catScore.getScoreboard(8));
-    System.out.println("Small Straight | 30 points: Enter 10 \t"+ catScore.getScoreboard(9));
-    System.out.println("Large Straight | 40 points: Enter 11 \t"+ catScore.getScoreboard(10));
-    System.out.println("YAHTZEE! | 50 points: Enter 12 \t"+ catScore.getScoreboard(11));
-    System.out.println("Chance | Total of all 5 dice: Enter 13 \t"+ catScore.getScoreboard(12));
   }
 
   public static boolean fullScorecard (Multiplayer scoreBoard) // checks scoreboard to see if it is full

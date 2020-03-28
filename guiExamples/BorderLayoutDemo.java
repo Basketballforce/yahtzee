@@ -1,3 +1,6 @@
+// Fig. 11.42: BorderLayoutDemo.java
+// Testing BorderLayoutFrame.
+import javax.swing.JFrame;
 import java.util.Random; // roll dice
 import java.util.Scanner; // user input
 import java.util.stream.Collectors;
@@ -5,15 +8,38 @@ import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
 import java.util.List;
 
-public class BasicMultiplayer
+public class BorderLayoutDemo 
 {
-  public static void main(String args[])
+   public static void main( String args[] )
+   { 
+      //BorderLayoutFrame borderLayoutFrame = new BorderLayoutFrame(); 
+      //borderLayoutFrame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+      //borderLayoutFrame.setSize( 300, 200 ); // set frame size
+      //borderLayoutFrame.setVisible( true ); // display frame
+    
+      GridLayoutFrame b2 = new GridLayoutFrame();
+      b2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      b2.setSize( 300, 200 ); // set frame size
+      String s = b2.getS();
+      System.out.println(s);
+      while(b2.getS()=="hii")
+      b2.setVisible( true ); // display frame
+
+      s =  b2.getS();
+      System.out.println(s);
+
+      YahtzeeLogic(Integer.parseInt(s));
+
+      
+   } // end main
+
+
+
+   public static void YahtzeeLogic(int nPlayers)
   {
-
-    Scanner cat = new Scanner(System.in); // input/scanner obj
-    System.out.println("Welcome to Yahtzee! How many players?"); // prompt user for player count
-
-    int numPlayers = cat.nextInt(); // int equal to number of players
+      System.out.print("Function started with given parameter"+ nPlayers);
+    //Scanner cat = new Scanner();
+    int numPlayers = nPlayers;
     int currentPlayer = 0; // increment by one every main loop,  helps track current player
 
     Multiplayer[] players = new Multiplayer[numPlayers];
@@ -26,17 +52,11 @@ public class BasicMultiplayer
     int reroll = 0; // tracks rerolls available
     int yesNo; // tracks user input related to reroll (if they want to reroll)
 
-    System.out.println("Hello There, Rolling 5 Dice");
-    System.out.println("You rolled a:");
-
     for (int j = 0; j>-1; j++) // main loop that runs infinitely (supposed to terminate when scoreboard is full/ all elements not 0)
     {
 
         if(gameOver(players))
-        {  
-         cat.close(); // close scanner
          return;
-        }
 
         currentPlayer = (currentPlayer % numPlayers); 
 
@@ -60,22 +80,21 @@ public class BasicMultiplayer
         System.out.print("\t"+ players[currentPlayer].getRoll(i));  
 
       System.out.println("\nREROLL? 1 for yes, 0 for no");
-      yesNo = cat.nextInt();
+     // yesNo = cat.nextInt();
+     yesNo=0;
       if (yesNo == 0) // break if user doesn't want to reroll
       break;
 
         reroll++; // allow three rerolls
       }while(reroll < 3); // END OF DO WHILE LOOP
-       
       
-      printList(players[currentPlayer]); // prints options/categories for user to score their roll
-      
-      int choice = cat.nextInt(); // get user input for category
-
+      //int choice = cat.nextInt(); // get user input for category
+      int choice = 1;
       while(choice < 1 || choice > 13 || players[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken or not a valid choice, alert user and prompt for input
       {
-        System.out.println("Option already taken or invalid");
-        choice = cat.nextInt();
+        System.out.println("Option already taken or invalid" +numPlayers);
+        //choice = cat.nextInt();
+        choice =2;
       }
 
       players[currentPlayer].setScoreboard(choice-1,categories(players[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
@@ -85,9 +104,9 @@ public class BasicMultiplayer
       System.out.println("Score for category " +choice+ " is " + players[currentPlayer].getScoreboard(choice -1));
       currentPlayer++;
     }
-    cat.close(); // close scanner... NOT NECCESSARRY HERE, does this when in return statement above
-  }
 
+    //cat.close(); // close scanner
+  }
 
   public static int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
   {
@@ -212,27 +231,6 @@ public class BasicMultiplayer
     return score;
   }
 
-  public static void printList(Multiplayer catScore) // prompts user to score in a category for dice roll and give them their current score for each one. -1 defualt/not scored yet
-  {
-    System.out.println("Select where you would like to score:");
-    System.out.println("Aces (Ones) | Total of Aces only: Enter 1 \t" + catScore.getScoreboard(0));
-    System.out.println("Twos | Total of twos only: Enter 2 \t" + catScore.getScoreboard(1));
-    System.out.println("Threes | Total of Thress only: Enter 3 \t"+ catScore.getScoreboard(2));
-    System.out.println("Fours | Total of Fours only: Enter 4 \t"+ catScore.getScoreboard(3));
-    System.out.println("Fives | Total of Fives only: Enter 5 \t"+ catScore.getScoreboard(4));
-    System.out.println("Sixes | Total of Sixes only:Enter 6 \t"+ catScore.getScoreboard(5));
-
-    System.out.println("\n lower section: \n");
-
-    System.out.println("3 of a Kind | Total of all 5 dice: Enter 7 \t"+ catScore.getScoreboard(6));
-    System.out.println("4 of a Kind | Total of all 5 dice: Enter 8 \t"+ catScore.getScoreboard(7));
-    System.out.println("Full House | 25 points: Enter 9 \t"+ catScore.getScoreboard(8));
-    System.out.println("Small Straight | 30 points: Enter 10 \t"+ catScore.getScoreboard(9));
-    System.out.println("Large Straight | 40 points: Enter 11 \t"+ catScore.getScoreboard(10));
-    System.out.println("YAHTZEE! | 50 points: Enter 12 \t"+ catScore.getScoreboard(11));
-    System.out.println("Chance | Total of all 5 dice: Enter 13 \t"+ catScore.getScoreboard(12));
-  }
-
   public static boolean fullScorecard (Multiplayer scoreBoard) // checks scoreboard to see if it is full
   {
       boolean full = true;
@@ -256,5 +254,4 @@ public class BasicMultiplayer
 
     return full;
   }
-
-}
+} // end class BorderLayoutDemo
