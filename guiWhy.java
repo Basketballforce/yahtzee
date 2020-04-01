@@ -4,11 +4,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.geometry.Pos; 
 
 //import javax.swing.JFrame;
 import java.util.Random; // roll dice
 //import java.util.Scanner; // user input
 import java.util.stream.Collectors;
+
+import javax.swing.SwingConstants;
+
 import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
 import java.util.List;  // for list
@@ -21,8 +25,8 @@ public class guiWhy extends Application
     private int players=1; // number of players
     private int currentPlayer = 0; // increment by one every main loop,  helps track current player
     private Random rand = new Random(); // random for roll
-    private int reroll = 0; // tracks rerolls available
-    private int yesNo=0; // tracks user input related to reroll (if they want to reroll)
+    private int reroll = 3; // tracks rerolls available
+    private int setButtonArr; // used to setOnAction for button array categories
     Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
     ArrayList<Integer> rolls; // holds roll values
 
@@ -30,10 +34,12 @@ public class guiWhy extends Application
     Stage window; // main windows that gui runs ins
     Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
     Button button2; // click to start playing
+    Button [] categories = new Button [13];
     Button roll = new Button("Roll!"); // button to roll dice 
     Label numberPlayers = new Label("Number of players: " + players); // label that contain's the amount of players playing
     Label rollVal = new Label("You rolled a: "); // value of the roll
-    Label curPlayer = new Label(""+(currentPlayer+1)); // who the current player is
+    Label curPlayer = new Label("Player "+(currentPlayer+1)+"'s Turn"); // who the current player is
+    Label numRolls = new Label("Rolls Left: "+ reroll);
     TextField input = new TextField("# of players?"); // field for the number of players playing
     public static void main(String[] args) { // main, runs start function
         launch(args);
@@ -44,7 +50,7 @@ public class guiWhy extends Application
         window = primaryStage; // set window to primary stage
 
         //Button 1
-        Label label1 = new Label("Welcome to the first scene!"); // set up welcome label
+        Label label1 = new Label("Welcome to the Main Menu!"); // set up welcome label
        // Button button1 = new Button("Go to scene 2"); // no longer needed
        // button1.setOnAction(e -> window.setScene(scene2)); 
 
@@ -58,7 +64,7 @@ public class guiWhy extends Application
 
 
         //Button 2
-        Button button2 = new Button("Go back to scene 1");
+        Button button2 = new Button("Go back to the Main Menu");
         button2.setOnAction(e -> window.setScene(scene1));
 
         Button button3 = new Button("Increment current player by 1");
@@ -68,9 +74,17 @@ public class guiWhy extends Application
         roll.setOnAction(e->YahtzeeRollLogic());
 
         //Layout 2
-        VBox layout2 = new VBox(20);
-        layout2.getChildren().addAll(button2,button3, numberPlayers, roll, rollVal,curPlayer);
-        scene2 = new Scene(layout2, 350, 300);
+        FlowPane layout2 = new FlowPane(20,20);
+        layout2.getChildren().addAll(button2,button3, numberPlayers, roll, rollVal,curPlayer, numRolls);
+        for (setButtonArr=0; setButtonArr<13; setButtonArr++ )
+        {
+          int i = setButtonArr; // set i here
+          categories[setButtonArr] = new Button("Option " + (setButtonArr+1));
+          categories[setButtonArr].setOnAction(e->yahtzeeScoreRoll(i+1));
+          layout2.getChildren().add(categories[setButtonArr]);
+        }
+        layout2.setAlignment(Pos.CENTER);
+        scene2 = new Scene(layout2, 450, 400);
 
         //Display scene 1 at first
         window.setScene(scene1);
@@ -107,8 +121,11 @@ public class guiWhy extends Application
     public void setCurrentPlayer()
     {
         currentPlayer=(currentPlayer+1)%players;
-        curPlayer.setText(""+(currentPlayer+1));
+        curPlayer.setText("Player "+(currentPlayer+1)+"'s Turn");
         System.out.print(currentPlayer);
+        reroll=3;
+        numRolls.setText("Rolls Left: "+ reroll);
+        rollVal.setText("You rolled a: ");
     }
 
     
@@ -124,20 +141,34 @@ public class guiWhy extends Application
      // USED TO BE INFINITE LOOP
    public void YahtzeeRollLogic()
    {
+        if(reroll!=0)
         rollVal.setText("You rolled a: "); // reset roll label
 
          if(gameOver(playerobj))
+         {
+          System.out.print("GAME OVER");
           return; // change to bool or kill statement
+         }
  
          if(fullScorecard(playerobj[currentPlayer]))
          {
-           System.out.println("Player is out of rolls!");
+           System.out.println("Player is out of categories to score!");
            currentPlayer++;
            return; 
          }
+
+         if (reroll==0)
+         {
+         System.out.println("Player is out of rolls!");
+         return;
+         }
         
        System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN");
-       reroll=0; // rest reroll
+       reroll--; // rest reroll
+       if(reroll!=0)
+       numRolls.setText("Rolls Left: "+ reroll);
+       else
+       numRolls.setText("OUT OF ROLLS!");
        
        int rolled; // track single roll value
         // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
@@ -145,10 +176,11 @@ public class guiWhy extends Application
        {
         rolled = rand.nextInt(6)+1;
         playerobj[currentPlayer].setRoll(i, rolled);
-        rollVal.setText(rollVal.getText()+ " " +rolled);
        }
  
         playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
+        for(int i = 0; i < 5; i++) // set roll label to sorted roll
+        rollVal.setText(rollVal.getText()+ " " +playerobj[currentPlayer].getRoll(i));
  
        for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
          System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  
@@ -158,22 +190,19 @@ public class guiWhy extends Application
        }
 
        
-       public void yahtzeeReRoll()
+       public void yahtzeeScoreRoll(int choice)
        {
-      // yesNo = cat.nextInt();
-      yesNo=0;
-       if (yesNo == 0) // break if user doesn't want to reroll
-       return;
- 
-         reroll++; // allow three rerolls
-       
-       //int choice = cat.nextInt(); // get user input for category
-       int choice = 1;
-       while(choice < 1 || choice > 13 || playerobj[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken or not a valid choice, alert user and prompt for input
+        System.out.print(choice);
+        if(playerobj[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken alert user and prompt for input
        {
          System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
          //choice = cat.nextInt();
-         choice =2;
+         return;
+       }
+       if(rollVal.getText()=="You rolled a: ")
+       {
+        System.out.println("You need to roll first!");
+        return;
        }
  
        playerobj[currentPlayer].setScoreboard(choice-1,categories(playerobj[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
@@ -181,7 +210,8 @@ public class guiWhy extends Application
  
        System.out.println("current score is:" + playerobj[currentPlayer].getScore()); // print our current score and score for that specific roll
        System.out.println("Score for category " +choice+ " is " + playerobj[currentPlayer].getScoreboard(choice -1));
-       currentPlayer++;
+       
+       setCurrentPlayer();
      }
  
    
