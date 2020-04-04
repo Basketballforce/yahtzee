@@ -1,38 +1,38 @@
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
+
+//  GUI Libraries
 import javafx.application.Application;
-//import javafx.event.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.geometry.Pos; 
-import javax.swing.ImageIcon;
 import javafx.geometry.Insets;
 import javafx.scene.text.Font;
+//import javafx.event.*;
+//import javax.swing.JFrame;  
 
-//import javax.swing.JFrame;
+//Graphics Libraries 
+import javafx.scene.canvas.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.*;
+import javafx.scene.image.*;
+
+
+// GAME LOGIC Libraries
 import java.util.Random; // roll dice
-//import java.util.Scanner; // user input
 import java.util.stream.Collectors;
-
-import javax.swing.SwingConstants;
-
 import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
 import java.util.List;  // for list
-import javafx.scene.Group;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
+
+// Libraries for writing and reading to file. Save and load game functionality
+import java.io.File; // for saving and loading game
+import java.io.FileWriter; // write files
+import java.io.IOException;
+//import java.util.Scanner; // reading from file
 
 
-public class guiWhy extends Application
+public class guiWhy extends Application // Start of Class
 {
 
     //Game Logic Vars
@@ -42,78 +42,85 @@ public class guiWhy extends Application
     private int reroll = 3; // tracks rerolls available
     private int setButtonArr; // used to setOnAction for button array categories
     Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
-      // int[] reservedDice = new int[5]; to be implemented later
-    
+   // int[] reservedDice = new int[5]; to be implemented later
+
     // gui vars
     Stage window; // main windows that gui runs ins
     Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
-    Button button2; // click to start playing
-    Button [] categories = new Button [13];
-    Button roll = new Button("Roll!"); // button to roll dice 
+    Button [] categories = new Button [13]; // buttons to that score roll in a category
     Label numberPlayers = new Label("Number of players: " + players); // label that contain's the amount of players playing
     Label rollVal = new Label("You rolled a: "); // value of the roll
     Label curPlayer = new Label("Player "+(currentPlayer+1)+"'s Turn"); // who the current player is
-    Label numRolls = new Label("Rolls Left: "+ reroll);
+    Label numRolls = new Label("Rolls Left: "+ reroll); // number of rolls available per turn
     TextField input = new TextField("# of players?"); // field for the number of players playing
-    //Sprite Dice = new Sprite();
     private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
     "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
     "YAHTZEE! | 50 points", "Chance | Total of All 5 Dice"};
+
     public static void main(String[] args) { // main, runs start function
         launch(args);
     }
-   @Override // required for start, which is pulled from application class
+
+    @Override // required for start, which is pulled from application class
     public void start(Stage primaryStage) {
         window = primaryStage; // set window to primary stage
-   
+
+        ///////////////////////////////////////////////// START OF LAYOUT 1
+
+        
       Canvas canvas = new Canvas(350,200 );
 
-    GraphicsContext gc = canvas.getGraphicsContext2D();
+      GraphicsContext gc = canvas.getGraphicsContext2D();
          
-    gc.setFill( Color.RED );
-    gc.setStroke( Color.BLACK );
-    gc.setLineWidth(2);
-    Font theFont = Font.font( "Times New Roman", FontWeight.BOLD, 48 );
-    gc.setFont( theFont );
-    gc.fillText( "Yahtzee!", 90, 35 );
-    gc.strokeText( "Yahtzee",90, 35 );
-    Image dice = new Image( "dice.png" );
-    gc.drawImage( dice, 130, 100 );
- 
+     gc.setFill( Color.RED );
+     gc.setStroke( Color.BLACK );
+     gc.setLineWidth(2);
+     Font theFont = Font.font( "Times New Roman", FontWeight.BOLD, 48 );
+     gc.setFont( theFont );
+     gc.fillText( "Yahtzee!", 90, 35 );
+     gc.strokeText( "Yahtzee",90, 35 );
+     Image dice = new Image( "resources/dice.png" );
+     gc.drawImage( dice, 130, 100 );
 
         //Button 1
-        Label label1 = new Label("Welcome to the Main Menu!"); // set up welcome label
-
+        Label label1 = new Label("Yahtzee!"); // set up welcome label
         label1.setFont(Font.font("Arial Black",25));
         // Button button1 = new Button("Go to scene 2"); // no longer needed
        // button1.setOnAction(e -> window.setScene(scene2)); 
 
-       Button startGame = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
-       Button instruct = new Button("Instructions");
-       startGame.setOnAction(e->setPlayer(input));
-       input.setMaxWidth(310); 
-       input.setOnAction(e->setPlayer(input));
+        Button startGame = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
+        Button instruct = new Button("Instructions");
+        startGame.setOnAction(e->setPlayer(input));
+        input.setMaxWidth(310); 
+        input.setOnAction(e->setPlayer(input));
 
-       VBox layout1 = new VBox(20);
-       layout1.setAlignment(Pos.BASELINE_CENTER);
-       layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
-       scene1 = new Scene(layout1, 390, 450);        
-       Button Menu = new Button("Back to the Main Menu");
+        //Layout 1 - elements in vertical column
+        VBox layout1 = new VBox(20);
+        layout1.setAlignment(Pos.BASELINE_CENTER);
+        layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
+        scene1 = new Scene(layout1, 350, 300);
+
+        ///////////////////////////////////////////////////////////////////////////////////// START OF LAYOUT 2
+
+        //Button 2
+        Button Menu = new Button("Back to the Main Menu");
         Menu.setOnAction(e -> {
-          window.setScene(scene1);}); // change scene to main menu and saveGame func
+          window.setScene(scene1); saveGame();}); // change scene to main menu and saveGame func
 
         Button button3 = new Button("Next Player/Turn");
         button3.setOnAction(e -> setCurrentPlayer()); // increment turn to next player or next roll if 1 player
 
-
-        // Button Roll
-        roll.setOnAction(e->YahtzeeRollLogic());
         HBox topBorder = new HBox(); // HBox and Border Top
         topBorder.setPadding(new Insets(10,0,-40,0));
         topBorder.setSpacing(10);
         curPlayer.setFont(Font.font("Arial Black",14));
         HBox.setMargin(curPlayer,new Insets(5,0,-40,10));
         topBorder.getChildren().addAll(Menu,button3,curPlayer);
+
+        // Button Roll
+        Button roll = new Button("Roll!"); // button to roll dice 
+        roll.setFont(Font.font("Arial Black",14));
+        roll.setOnAction(e->YahtzeeRollLogic()); // roll 5 di, calls rollLogic function
 
         HBox bottomBorder = new HBox();
         bottomBorder.setSpacing(10);
@@ -137,8 +144,6 @@ public class guiWhy extends Application
           categories[i].setFont(Font.font("Arial Black",14));
           eastBorder.getChildren().add(categories[i]);
         }
-        Canvas canvas2 = new Canvas(450,50);
-        
         layout2.setRight(eastBorder);
         layout2.setTop(topBorder);
         layout2.setBottom(bottomBorder);
@@ -148,8 +153,6 @@ public class guiWhy extends Application
         scene1.getStylesheets().add("style.css");
         window.setScene(scene1);
         window.setTitle("Yahtzee!");
-       
-        //primaryStage.setResizable(false);
         window.show();
     }
 
@@ -164,7 +167,7 @@ public class guiWhy extends Application
             return;
         }
             // Checks that passed in int is greater than 0s
-        if(Integer.parseInt(input.getText())<1)
+        if(Integer.parseInt(input.getText())<1 || Integer.parseInt(input.getText())>100)
         return;
 
         System.out.println(players);
@@ -423,6 +426,30 @@ public class guiWhy extends Application
  
      return full;
    }
-   
 
+   public void saveGame()
+   { // try block neccessarry due to ioexception 
+    try            
+    {
+      FileWriter writeSave = new FileWriter("saveGame.txt");
+      for(int i =0; i<13; i++)
+      {
+      writeSave.write("boo"); 
+      }
+
+
+      
+      writeSave.close();   
+    } catch (IOException e) 
+    {
+        input.setText("Issue with save file");
+        return;
+    }
+    
+   }
+
+   public void loadGame()
+   {
+    File saveFile = new File("saveGame.txt");
+   }
 }
