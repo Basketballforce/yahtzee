@@ -8,6 +8,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.geometry.Pos; 
 import javax.swing.ImageIcon;
+import javafx.geometry.Insets;
+import javafx.scene.text.Font;
 
 //import javax.swing.JFrame;
 import java.util.Random; // roll dice
@@ -40,7 +42,7 @@ public class guiWhy extends Application
     private int reroll = 3; // tracks rerolls available
     private int setButtonArr; // used to setOnAction for button array categories
     Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
-    ArrayList<Integer> rolls; // holds roll values
+      // int[] reservedDice = new int[5]; to be implemented later
     
     // gui vars
     Stage window; // main windows that gui runs ins
@@ -53,7 +55,10 @@ public class guiWhy extends Application
     Label curPlayer = new Label("Player "+(currentPlayer+1)+"'s Turn"); // who the current player is
     Label numRolls = new Label("Rolls Left: "+ reroll);
     TextField input = new TextField("# of players?"); // field for the number of players playing
-    Sprite Dice = new Sprite();
+    //Sprite Dice = new Sprite();
+    private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
+    "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
+    "YAHTZEE! | 50 points", "Chance | Total of All 5 Dice"};
     public static void main(String[] args) { // main, runs start function
         launch(args);
     }
@@ -78,64 +83,73 @@ public class guiWhy extends Application
 
         //Button 1
         Label label1 = new Label("Welcome to the Main Menu!"); // set up welcome label
-       // Button button1 = new Button("Go to scene 2"); // no longer needed
+
+        label1.setFont(Font.font("Arial Black",25));
+        // Button button1 = new Button("Go to scene 2"); // no longer needed
        // button1.setOnAction(e -> window.setScene(scene2)); 
 
-        button2 = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
-        button2.setOnAction(e->setPlayer(input)); 
+       Button startGame = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
+       Button instruct = new Button("Instructions");
+       startGame.setOnAction(e->setPlayer(input));
+       input.setMaxWidth(310); 
+       input.setOnAction(e->setPlayer(input));
 
-        //Layout 1 - elements in vertical column
-        VBox layout1 = new VBox(20);
-        layout1.getChildren().addAll(label1,canvas, input, button2);
-        scene1 = new Scene(layout1, 350, 350);
-        
+       VBox layout1 = new VBox(20);
+       layout1.setAlignment(Pos.BASELINE_CENTER);
+       layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
+       scene1 = new Scene(layout1, 390, 450);        
+       Button Menu = new Button("Back to the Main Menu");
+        Menu.setOnAction(e -> {
+          window.setScene(scene1);}); // change scene to main menu and saveGame func
 
-        //Button 2
-        Button button2 = new Button("Go back to the Main Menu");
-        button2.setOnAction(e -> window.setScene(scene1));
+        Button button3 = new Button("Next Player/Turn");
+        button3.setOnAction(e -> setCurrentPlayer()); // increment turn to next player or next roll if 1 player
 
-        Button button3 = new Button("Increment current player by 1");
-        button3.setOnAction(e -> setCurrentPlayer());
 
         // Button Roll
         roll.setOnAction(e->YahtzeeRollLogic());
+        HBox topBorder = new HBox(); // HBox and Border Top
+        topBorder.setPadding(new Insets(10,0,-40,0));
+        topBorder.setSpacing(10);
+        curPlayer.setFont(Font.font("Arial Black",14));
+        HBox.setMargin(curPlayer,new Insets(5,0,-40,10));
+        topBorder.getChildren().addAll(Menu,button3,curPlayer);
 
-        //Layout 2
-        FlowPane layout2 = new FlowPane(20,20);
-        layout2.getChildren().addAll(button2,button3, numberPlayers, roll, rollVal,curPlayer, numRolls);
-        for (setButtonArr=0; setButtonArr<13; setButtonArr++ )
+        HBox bottomBorder = new HBox();
+        bottomBorder.setSpacing(10);
+        bottomBorder.setPadding(new Insets(10,10,10,10));
+        bottomBorder.getChildren().addAll(numberPlayers, roll, rollVal, numRolls);
+
+        //LAYOUT 2 grid and border
+        GridPane eastBorder = new GridPane(); // scene 2 element put into a FlowPane
+        eastBorder.setVgap(20);
+        eastBorder.setPadding(new Insets(10,0,-40,10));
+
+        BorderPane layout2 = new BorderPane();
+
+        for (setButtonArr=0; setButtonArr<13; setButtonArr++ ) // set button text to correct numbered option.
         {
-          int i = setButtonArr; // set i here
-          categories[0] = new Button("Ones ");
-	 categories[1] = new Button("Twos ");
-	 categories[2] = new Button("Threes ");
-	 categories[3] = new Button("Fours ");
-	 categories[4] = new Button("Fives ");
-	 categories[5] = new Button("Sixs ");
-	 categories[6] = new Button("Three of a kind ");
-	 categories[7] = new Button("Four of a kind ");
-	 categories[8] = new Button("Full House ");
-	 categories[9] = new Button("Small Straight");
-	 categories[10] = new Button("Large Straight ");
-	 categories[11] = new Button("Chance ");
-	 categories[12] = new Button("Yahtzee!");
-	
-	 
-
-//categories[0].setIcon(new ImageIcon("/desktop/Yahtzee-master/ones.png"));
-	  categories[setButtonArr].setOnAction(e->yahtzeeScoreRoll(i+1));
-          layout2.getChildren().add(categories[setButtonArr]);
+          int i = setButtonArr; // set i here because of final int issue if declared in for loop
+          categories[setButtonArr] = new Button(options[i]);
+          categories[setButtonArr].setOnAction(e->yahtzeeScoreRoll(i+1)); // Score roll based on corresponding number
+          GridPane.setConstraints(categories[setButtonArr], 0,i); // add button at i to the layout
+          categories[i].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+          categories[i].setFont(Font.font("Arial Black",14));
+          eastBorder.getChildren().add(categories[i]);
         }
         Canvas canvas2 = new Canvas(450,50);
         
-        layout2.setAlignment(Pos.CENTER);
-        scene2 = new Scene(layout2, 450, 400);
+        layout2.setRight(eastBorder);
+        layout2.setTop(topBorder);
+        layout2.setBottom(bottomBorder);
+        scene2 = new Scene(layout2, 800, 675); // set scene to new scene
 
         //Display scene 1 at first
+        scene1.getStylesheets().add("style.css");
         window.setScene(scene1);
         window.setTitle("Yahtzee!");
        
-        primaryStage.setResizable(false);
+        //primaryStage.setResizable(false);
         window.show();
     }
 
