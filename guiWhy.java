@@ -42,6 +42,7 @@ public class guiWhy extends Application // Start of Class
     private Label rollVal = new Label("You rolled a: "); // value of the roll
     private Label curPlayer = new Label("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // who the current player is
     private Label numRolls = new Label("Rolls Left: "+ playerobj.getreroll()); // number of rolls available per turn
+    private Label availableChoice = new Label("");
     private TextField input = new TextField("# of players?"); // field for the number of players playing
     private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
     "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
@@ -142,7 +143,7 @@ public class guiWhy extends Application // Start of Class
         HBox bottomBorder = new HBox();
         bottomBorder.setSpacing(10);
         bottomBorder.setPadding(new Insets(10,10,10,10));
-        bottomBorder.getChildren().addAll(numberPlayers, roll, rollVal, numRolls);
+        bottomBorder.getChildren().addAll(numberPlayers, roll, rollVal, numRolls, availableChoice);
 
         //LAYOUT 2 grid and border
         GridPane eastBorder = new GridPane(); // scene 2 element put into a FlowPane
@@ -241,7 +242,7 @@ public class guiWhy extends Application // Start of Class
         return;
       }
 
-      if(playerobj.getreroll()!=0)
+      //if(playerobj.getreroll()!=0)
       numRolls.setText("Rolls Left: "+ playerobj.getreroll());
 
       for(int i = 0; i < 5; i++) // set roll label to sorted roll
@@ -297,7 +298,11 @@ public class guiWhy extends Application // Start of Class
       dice4.setGraphic(new ImageView(diceNullImg));
       dice5.setGraphic(new ImageView(diceNullImg));
 
+        availableChoice.setText("");// SET LABEL TO ""
+
        }
+       else
+       availableChoice.setText("Option Already Taken!");// SET LABEL TO OPTION TAKEN!
     }
 
   }
