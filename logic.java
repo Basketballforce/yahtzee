@@ -23,7 +23,7 @@ private int currentPlayer = 0; // increment by one every main loop,  helps track
 private Random rand = new Random(); // random for roll
 private int reroll = 3; // tracks rerolls available
 Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
-// int[] reservedDice = new int[5]; to be implemented later
+int[] toggleDice = new int[] {0,0,0,0,0}; // track if dice is being reserved or not
 
 public void setup(int p)
 {
@@ -68,6 +68,26 @@ public void setup(int p)
        
     }
 
+    public void toggleDice(int i)
+    {
+      if(toggleDice[i]==0)
+      toggleDice[i]=1;
+      else
+      toggleDice[i]=0;
+
+      System.out.println("toggling dice" + i + "val:" + toggleDice[i]);
+    }
+
+    public void setDiceToggle(int idex,int val)
+    {
+      toggleDice[idex]=val;
+    }
+
+    public int getDiceToggle(int idex)
+    {
+      return toggleDice[idex];
+    }
+
  
      // USED TO BE INFINITE LOOP
    public boolean YahtzeeRollLogic()
@@ -100,11 +120,14 @@ public void setup(int p)
         // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
        for(int i =0; i < 5; i++)
        {
+         if(toggleDice[i]==0)
+         {
         rolled = rand.nextInt(6)+1;
         playerobj[currentPlayer].setRoll(i, rolled);
+         }
        }
  
-        playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
+       // playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
         
 
        for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
@@ -142,9 +165,10 @@ public void setup(int p)
  
    
  
-   public static int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
+   public int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
    {
      int score = 0;
+     playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
     
      if (choice < 7) // if less than 7, then score is the sum of dice that value was chosen by user (choice)
      {

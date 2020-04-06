@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Pos; 
 import javafx.geometry.Insets;
 import javafx.scene.text.Font;
+
 //import javafx.event.*;
 //import javax.swing.JFrame;  
 
@@ -22,19 +23,26 @@ public class guiWhy extends Application // Start of Class
 {
 
    
-    logic playerobj = new logic(); // holds each player obj, including their scoreboard, and overall score
-   // int[] reservedDice = new int[5]; to be implemented later
+   private logic playerobj = new logic(); // holds each player obj, including their scoreboard, and overall score
    private int setButtonArr; // used to setOnAction for button array categories
 
     // gui vars
-    Stage window; // main windows that gui runs ins
-    Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
-    Button [] categories = new Button [13]; // buttons to that score roll in a category
-    Label numberPlayers = new Label("Number of players: " + playerobj.getPlayers()); // label that contain's the amount of players playing
-    Label rollVal = new Label("You rolled a: "); // value of the roll
-    Label curPlayer = new Label("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // who the current player is
-    Label numRolls = new Label("Rolls Left: "+ playerobj.getreroll()); // number of rolls available per turn
-    TextField input = new TextField("# of players?"); // field for the number of players playing
+    private Stage window; // main windows that gui runs ins
+    private Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
+    private Button [] categories = new Button [13]; // buttons to that score roll in a category
+
+    private Button dice1 = new Button(); // dice images for roll values
+    private Button dice2 = new Button();
+    private Button dice3 = new Button();
+    private Button dice4 = new Button();
+    private Button dice5 = new Button();
+    private Image diceNullImg = new Image("resources/diceNull.png");
+    
+    private Label numberPlayers = new Label("Number of players: " + playerobj.getPlayers()); // label that contain's the amount of players playing
+    private Label rollVal = new Label("You rolled a: "); // value of the roll
+    private Label curPlayer = new Label("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // who the current player is
+    private Label numRolls = new Label("Rolls Left: "+ playerobj.getreroll()); // number of rolls available per turn
+    private TextField input = new TextField("# of players?"); // field for the number of players playing
     private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
     "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
     "YAHTZEE! | 50 points", "Chance | Total of All 5 Dice"};
@@ -63,6 +71,30 @@ public class guiWhy extends Application // Start of Class
      gc.strokeText( "Yahtzee",90, 35 );
      Image dice = new Image( "resources/dice.png" );
      gc.drawImage( dice, 130, 100 );
+
+
+     dice1 = new Button("",new ImageView(diceNullImg));
+     dice1.setStyle("-fx-background-color: transparent;");
+     dice1.setOnAction(e->{ reserveDice(0);});
+
+    
+     dice2 = new Button("",new ImageView(diceNullImg));
+     dice2.setStyle("-fx-background-color: transparent;");
+     dice2.setOnAction(e->{ reserveDice(1);});
+    
+     dice3 = new Button("",new ImageView(diceNullImg));
+     dice3.setStyle("-fx-background-color: transparent;");
+     dice3.setOnAction(e->{ reserveDice(2);});
+         
+     dice4 = new Button("",new ImageView(diceNullImg));
+     dice4.setStyle("-fx-background-color: transparent;");
+     dice4.setOnAction(e->{ reserveDice(3);});
+         
+     dice5 = new Button("",new ImageView(diceNullImg));
+     dice5.setStyle("-fx-background-color: transparent;");
+     dice5.setOnAction(e->{ reserveDice(4);});
+     
+
 
         //Button 1
         Label label1 = new Label("Yahtzee!"); // set up welcome label
@@ -99,6 +131,9 @@ public class guiWhy extends Application // Start of Class
         HBox.setMargin(curPlayer,new Insets(5,0,0,0));
         topBorder.getChildren().addAll(Menu,button3,curPlayer);
 
+        HBox centerBorder = new HBox();
+        centerBorder.getChildren().addAll(dice1,dice2,dice3,dice4,dice5);
+
         // Button Roll
         Button roll = new Button("Roll!"); // button to roll dice 
         roll.setFont(Font.font("Arial Black",14));
@@ -129,7 +164,8 @@ public class guiWhy extends Application // Start of Class
         layout2.setRight(eastBorder);
         layout2.setTop(topBorder);
         layout2.setBottom(bottomBorder);
-        scene2 = new Scene(layout2, 800, 770); // set scene to new scene
+        layout2.setCenter(centerBorder);
+        scene2 = new Scene(layout2, 850, 770); // set scene to new scene
 
         //Display scene 1 at first
         scene1.getStylesheets().add("style.css");
@@ -158,6 +194,40 @@ public class guiWhy extends Application // Start of Class
        rollVal.setText("You rolled a: ");
     }
 
+    public void reserveDice(int idex)
+    {
+      if(rollVal.getText()!="You rolled a: ")
+      {
+        playerobj.toggleDice(idex);
+      
+      if (playerobj.getDiceToggle(0)==0)
+      dice1.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(0))+".png")));
+      else
+      dice1.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(0))+"dark.png")));
+
+      if (playerobj.getDiceToggle(1)==0)
+      dice2.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(1))+".png")));
+      else
+      dice2.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(1))+"dark.png")));
+
+      if (playerobj.getDiceToggle(2)==0)
+      dice3.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(2))+".png")));
+      else
+      dice3.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(2))+"dark.png")));
+
+      if (playerobj.getDiceToggle(3)==0)
+      dice4.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(3))+".png")));
+      else
+      dice4.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(3))+"dark.png")));
+
+      if (playerobj.getDiceToggle(4)==0)
+      dice5.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(4))+".png")));
+      else
+      dice5.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(4))+"dark.png")));
+      
+      }
+    }
+
     public void rollSet()
     {
       if(playerobj.getreroll()!=0)
@@ -176,7 +246,32 @@ public class guiWhy extends Application // Start of Class
 
       for(int i = 0; i < 5; i++) // set roll label to sorted roll
         rollVal.setText(rollVal.getText()+ " " +playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i));
- 
+
+        if (playerobj.getDiceToggle(0)==0)
+        dice1.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(0))+".png")));
+        else
+        dice1.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(0))+"dark.png")));
+  
+        if (playerobj.getDiceToggle(1)==0)
+        dice2.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(1))+".png")));
+        else
+        dice2.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(1))+"dark.png")));
+  
+        if (playerobj.getDiceToggle(2)==0)
+        dice3.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(2))+".png")));
+        else
+        dice3.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(2))+"dark.png")));
+  
+        if (playerobj.getDiceToggle(3)==0)
+        dice4.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(3))+".png")));
+        else
+        dice4.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(3))+"dark.png")));
+  
+        if (playerobj.getDiceToggle(4)==0)
+        dice5.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(4))+".png")));
+        else
+        dice5.setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(4))+"dark.png")));
+  
     }
 
     public void scoreRoll(int choice)
@@ -192,6 +287,16 @@ public class guiWhy extends Application // Start of Class
        rollVal.setText("You rolled a: ");
        numRolls.setText("Rolls Left: "+ playerobj.getreroll());
        curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
+       
+       for(int i =0; i<5; i++)
+       playerobj.setDiceToggle(i,0);
+
+      dice1.setGraphic(new ImageView(diceNullImg));
+      dice2.setGraphic(new ImageView(diceNullImg));
+      dice3.setGraphic(new ImageView(diceNullImg));
+      dice4.setGraphic(new ImageView(diceNullImg));
+      dice5.setGraphic(new ImageView(diceNullImg));
+
        }
     }
 
