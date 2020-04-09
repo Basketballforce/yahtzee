@@ -70,7 +70,7 @@ public class guiWhy extends Application // Start of Class
      gc.drawImage( dice, 130, 100 );      // END OF GRAPHICS DRAW
 
 
-    for (int i =0; i<5; i++)
+    for (int i =0; i<5; i++) // set up dice images
     {
       int repetitive =i; // avoid final issue with i on setOnAction reserveDice call
      diceButtons[i] = new Button("",new ImageView(diceNullImg)); //set up intial dice images (change dice to array so, this could be 1 for loop)
@@ -196,11 +196,17 @@ public class guiWhy extends Application // Start of Class
       if(playerobj.getreroll()!=0)
       rollVal.setText("You rolled a: "); // reset roll label
 
-      boolean test = playerobj.YahtzeeRollLogic();
+      int test = playerobj.YahtzeeRollLogic();
       
-      if(!test)
+      if(test==0)
       {
         numRolls.setText("OUT OF ROLLS!");
+        return;
+      }
+      if(test==-1)
+      {
+        playerobj.setCurrentPlayer(); 
+        curLabel();
         return;
       }
 

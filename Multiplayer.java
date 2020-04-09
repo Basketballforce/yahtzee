@@ -41,7 +41,10 @@ public class Multiplayer
 
     public void setScoreboard(int idex, int val)
     {
-        scoreBoard[idex]=val;
+        if(scoreBoard[idex]==-1) // for yahtzee case where setscore is called more than once for the category
+        scoreBoard[idex]=0;
+
+        scoreBoard[idex]+=val;
     }
 
     public int getBoardSize()
@@ -59,9 +62,16 @@ public class Multiplayer
     return score;
     }
 
-    public void setScore(int add)
+    public void setScore()
     {
-        score+=add;
+        int currentScore=0;
+
+        for(int i =0; i <13;i++)
+        {
+            if(getScoreboard(i)!=-1) // for yahtzee case where setscore is called more than once for the category    
+            currentScore+=getScoreboard(i);
+        }
+        score=currentScore;
     }
 
     public int getRollSize()

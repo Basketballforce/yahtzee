@@ -25,7 +25,7 @@ private int reroll = 3; // tracks rerolls available
 Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
 int[] toggleDice = new int[] {0,0,0,0,0}; // track if dice is being reserved or not
 
-public void setup(int p)
+public void setup(int p) // setup inital values
 {
     System.out.print("Function started with given parameter "+ players + " ");
     players=p;
@@ -50,17 +50,17 @@ public void setup(int p)
         if(Integer.parseInt(input.getText())<1 || Integer.parseInt(input.getText())>100)
         return false;
 
-        System.out.println(players);
-        setup( Integer.parseInt(input.getText()));
+        System.out.println(players); 
+        setup( Integer.parseInt(input.getText())); // CALLS SETUP HERE
         return true;
     }
 
-    public int getPlayers()
+    public int getPlayers() // returns number of players
     {
         return players;
     }
 
-    public void setCurrentPlayer()
+    public void setCurrentPlayer() // sets currentplayer value
     {
         currentPlayer=(currentPlayer+1)%players;
 
@@ -68,7 +68,7 @@ public void setup(int p)
        
     }
 
-    public void toggleDice(int i)
+    public void toggleDice(int i) // toggles dice on and off (whether they are rerolled or not)
     {
       if(toggleDice[i]==0)
       toggleDice[i]=1;
@@ -78,88 +78,92 @@ public void setup(int p)
       System.out.println("toggling dice" + i + "val:" + toggleDice[i]);
     }
 
-    public void setDiceToggle(int idex,int val)
+    public void setDiceToggle(int idex,int val) // set toggle value in array
     {
       toggleDice[idex]=val;
     }
 
-    public int getDiceToggle(int idex)
+    public int getDiceToggle(int idex) // get toggle value
     {
       return toggleDice[idex];
     }
 
  
-     // USED TO BE INFINITE LOOP
-   public boolean YahtzeeRollLogic()
+   public int YahtzeeRollLogic() // internal roll logic
    {
 
-         if(gameOver(playerobj))
+         if(gameOver(playerobj)) // if the game is over return 0 and print game over... to be changed to results or winner screen in gui
          {
           System.out.print("GAME OVER");
-          return false; // change to bool or kill statement
+          return 0; // change to bool or kill statement
          }
  
-         if(fullScorecard(playerobj[currentPlayer]))
+         if(fullScorecard(playerobj[currentPlayer])) // if a player's scorecard is full then return -1
          {
            System.out.println("Player is out of categories to score!");
-           currentPlayer++;
-           return false; 
+           return -1; 
          }
 
-         if (reroll==0)
+         if (reroll==0) // if player is out of rolls return 0
          {
          System.out.println("Player is out of rolls!");
-         return false;
+         return 0;
          }
         
        System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN");
-       reroll--; // rest reroll
+       reroll--; // reset reroll
       
        
        int rolled; // track single roll value
+
         // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
        for(int i =0; i < 5; i++)
        {
          if(toggleDice[i]==0)
          {
-        rolled = rand.nextInt(6)+1;
-        playerobj[currentPlayer].setRoll(i, rolled);
+          rolled = rand.nextInt(2)+1;
+          playerobj[currentPlayer].setRoll(i, rolled);
          }
        }
- 
-       // playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
         
-
+//CMD LINE
        for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
          System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  
  
-       System.out.println("\nREROLL?");
-       return true;
+       System.out.println("\nREROLL?"); // prompt for reroll 
+       return 1;
+       //CMD LINE
        }
 
        
-       public boolean yahtzeeScoreRoll(int choice)
+       public boolean yahtzeeScoreRoll(int choice) // internal score logic
        {
         System.out.print(choice);
-        if(playerobj[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken alert user and prompt for input
+
+        if(choice==12) //  if choice is yahtzee, special case
+       {
+        if(playerobj[currentPlayer].getScoreboard(choice -1)==0 || (playerobj[currentPlayer].getScoreboard(choice -1)>0 && categories(playerobj[currentPlayer].getRollList(), choice)==0))
+        { // if invalid yahztee choice then deny score 
+          System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
+          return false;
+        }
+       } // if category other than yahtzee has already been selected, deny score
+        else if(playerobj[currentPlayer].getScoreboard(choice -1)>-1 && choice !=12) //  while choice is taken alert user and prompt for input
        {
          System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
          return false;
        }
        
-       //if(rollVal.getText()=="You rolled a: ")
-      // {
-       // System.out.println("You need to roll first!");
-      //  return;
-       //}
- 
+       // set scoreboard and score for current player
        playerobj[currentPlayer].setScoreboard(choice-1,categories(playerobj[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
-       playerobj[currentPlayer].setScore(playerobj[currentPlayer].getScoreboard(choice-1)); // assign total score to itself + new points from category
- 
+       playerobj[currentPlayer].setScore();
+
+       //CMD Line
        System.out.println("current score is:" + playerobj[currentPlayer].getScore()); // print our current score and score for that specific roll
        System.out.println("Score for category " +choice+ " is " + playerobj[currentPlayer].getScoreboard(choice -1));
        
        setCurrentPlayer();
+       //CMD Line
        return true;
      }
  
@@ -274,7 +278,10 @@ public void setup(int p)
          int fiveKind = Collections.frequency(rolls, rolls.get(0));
          if (fiveKind > 4)
            score+=50;
- 
+
+         if(fiveKind > 4 && playerobj[currentPlayer].getScoreboard(11)>0) // another 50 for +100 when seconde yahtzee or more
+          score+=50;
+
          return score;
      }
  
@@ -313,23 +320,23 @@ public void setup(int p)
      return full;
    }
 
-   public int getCurPlayer()
+   public int getCurPlayer() // get currentPlayer value
    {
        return currentPlayer;
    }
 
-   public int getreroll()
+   public int getreroll() // get reroll value
    {
        return reroll;
    }
 
-   public Multiplayer[] getMulti()
+   public Multiplayer[] getMulti() // get multiplayer obj.. used in gui setup of scene 2
    {
        return playerobj;
    }
 
-   public void saveGame()
-   { // try block neccessarry due to ioexception 
+   public void saveGame() // MIGHT implement save option
+   { // try block neccessarry due to ioexception  
     try            
     {
       FileWriter writeSave = new FileWriter("saveGame.txt");
@@ -349,7 +356,7 @@ public void setup(int p)
     
    }
 
-   public void loadGame()
+   public void loadGame() // MIGHT implement load from save option
    {
     File saveFile = new File("saveGame.txt");
    }
