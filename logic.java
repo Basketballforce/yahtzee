@@ -121,7 +121,7 @@ public void setup(int p) // setup inital values
        {
          if(toggleDice[i]==0)
          {
-          rolled = rand.nextInt(2)+1;
+          rolled = rand.nextInt(6)+1;
           playerobj[currentPlayer].setRoll(i, rolled);
          }
        }
@@ -328,6 +328,11 @@ public void setup(int p) // setup inital values
    public int getreroll() // get reroll value
    {
        return reroll;
+   }
+
+   public int getSboard(int i)
+   {
+     return playerobj[currentPlayer].getScoreboard(i);
    }
 
    public Multiplayer[] getMulti() // get multiplayer obj.. used in gui setup of scene 2
