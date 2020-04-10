@@ -27,7 +27,7 @@ public class guiWhy extends Application // Start of Class
 
     // gui vars
     private Stage window; // main windows that gui runs ins
-    private Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
+    private Scene scene1, scene2, scene3; // scene 1 is main menu and scene 2 will be main board screen
     private Button [] categories = new Button [13]; // buttons to that score roll in a category
     private Label [] sBoard = new Label [13];
     private Label sboardTitle = new Label("SCOREBOARD");
@@ -72,7 +72,7 @@ public class guiWhy extends Application // Start of Class
      Font theFont = Font.font( "Times New Roman", FontWeight.BOLD, 48 );
      gc.setFont( theFont );
      gc.fillText( "Yahtzee!", 90, 35 );
-     gc.strokeText( "Yahtzee",90, 35 );
+     gc.strokeText( "Yahtzee!",90, 35 );
      Image dice = new Image( "resources/dice.png" );
      gc.drawImage( dice, 130, 100 );      // END OF GRAPHICS DRAW
 
@@ -109,19 +109,19 @@ public class guiWhy extends Application // Start of Class
         startGame.setOnAction(e->{ setPlayerGui(input);}); // sets up intial player values
         input.setMaxWidth(310); // set textfeild width where user enters number of players
         input.setOnAction(e->{ setPlayerGui(input);});
-
+        instruct.setOnAction(e->{instructbutton();});
         //Layout 1 - elements in vertical column for main menu/start screen
         VBox layout1 = new VBox(20);
         layout1.setAlignment(Pos.BASELINE_CENTER);
         layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
         scene1 = new Scene(layout1, 350, 500);
-
+        
         ///////////////////////////////////////////////////////////////////////////////////// START OF LAYOUT 2
 
         //Button 2
         Button Menu = new Button("Back to the Main Menu");
         Menu.setOnAction(e -> {
-          window.setScene(scene1); playerobj.saveGame();}); // change scene to main menu and saveGame func
+         window.setScene(scene1); playerobj.saveGame();}); // change scene to main menu and saveGame func
 
         Button button3 = new Button("Next Player/Turn");
         button3.setOnAction(e -> {playerobj.setCurrentPlayer(); curLabel();}); // increment turn to next player or next roll if 1 player
@@ -170,7 +170,17 @@ public class guiWhy extends Application // Start of Class
       
 
         BorderPane layout2 = new BorderPane(); // scene 2 main gui layout
+       //////////////////////////////////////////////Layout 3//////////////////////////////////////////////
+        HBox Layout3 = new HBox();
+       
+       Layout3.setPadding(new Insets(15, 12, 15, 12));
+    Layout3.setSpacing(10);
+ 
+    
 
+       Layout3.getChildren().addAll(Menu);
+       
+       /////////////////////////////////////////////End Layout 3///////////////////////////////////////////
         for (setButtonArr=0; setButtonArr<13; setButtonArr++ ) // set button text to correct numbered option.
         {
           int i = setButtonArr; // set i here because of final int issue if declared in for loop
@@ -200,6 +210,8 @@ public class guiWhy extends Application // Start of Class
         BorderPane.setMargin(eastBorder, new Insets(-41,20,0,0));
         
         scene2 = new Scene(layout2, 1030, 770); // set scene to new scene
+        scene3 = new Scene(Layout3, 1030, 770);
+          scene3.getStylesheets().add("style_1.css");
 
         //Display scene 1 at first
         scene1.getStylesheets().add("style.css");
@@ -324,6 +336,12 @@ public class guiWhy extends Application // Start of Class
        }
        else
        availableChoice.setText("Option Already Taken!");// SET LABEL TO OPTION TAKEN!
+    }
+
+    private void instructbutton() {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        window.setScene(scene3);
+    
     }
 
   }

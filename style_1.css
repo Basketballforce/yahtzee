@@ -1,0 +1,17 @@
+.root{
+    -fx-background-image: url("resources/helpview.png");
+    -fx-font-size: 11pt;
+    -fx-background-repeat:no-repeat;
+    -fx-background-size:100% 100%;
+    -fx-background-color: rgba(0,0,0,0.7);
+}
+
+.label{
+    -fx-text-fill: #000000;
+}
+
+.button{
+
+    -fx-text-fill: #000000;
+    -fx-font-size: 20pt;
+}
