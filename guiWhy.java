@@ -1,3 +1,4 @@
+// John Moeder
 //  GUI Libraries
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -5,47 +6,51 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.geometry.Pos; 
+import javafx.geometry.Insets;
+import javafx.scene.text.Font;
+
 //import javafx.event.*;
-//import javax.swing.JFrame;   
+//import javax.swing.JFrame;  
 
-// GAME LOGIC Libraries
-import java.util.Random; // roll dice
-import java.util.stream.Collectors;
-import java.util.Collections; // use collections methods such as frequency
-import java.util.ArrayList; // for arraylist 
-import java.util.List;  // for list
-
-// Libraries for writing and reading to file. Save and load game functionality
-import java.io.File; // for saving and loading game
-import java.io.FileWriter; // write files
-import java.io.IOException;
-//import java.util.Scanner; // reading from file
+//Graphics Libraries 
+import javafx.scene.canvas.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.*;
+import javafx.scene.image.*;
+import javax.swing.JTextArea;
 
 
 public class guiWhy extends Application // Start of Class
 {
-
-    //Game Logic Vars
-    private int players=1; // number of players
-    private int currentPlayer = 0; // increment by one every main loop,  helps track current player
-    private Random rand = new Random(); // random for roll
-    private int reroll = 3; // tracks rerolls available
-    private int setButtonArr; // used to setOnAction for button array categories
-    Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
-   // int[] reservedDice = new int[5]; to be implemented later
+  
+   private logic playerobj = new logic(); // holds each player obj, including their scoreboard, and overall score
+   private int setButtonArr; // used to setOnAction for button array categories
 
     // gui vars
-    Stage window; // main windows that gui runs ins
-    Scene scene1, scene2; // scene 1 is main menu and scene 2 will be main board screen
-    Button button2; // click to start playing
-    Button [] categories = new Button [13]; // buttons to that score roll in a category
-    Button roll = new Button("Roll!"); // button to roll dice 
-    Label numberPlayers = new Label("Number of players: " + players); // label that contain's the amount of players playing
-    Label rollVal = new Label("You rolled a: "); // value of the roll
-    Label curPlayer = new Label("Player "+(currentPlayer+1)+"'s Turn"); // who the current player is
-    Label numRolls = new Label("Rolls Left: "+ reroll); // number of rolls available per turn
-    TextField input = new TextField("# of players?"); // field for the number of players playing
+    private Stage window; // main windows that gui runs ins
+    private Scene scene1, scene2, scene3; // scene 1 is main menu and scene 2 will be main board screen
+    private Button [] categories = new Button [13]; // buttons to that score roll in a category
+    private Label [] sBoard = new Label [13];
+    private Label sboardTitle = new Label("SCOREBOARD");
+    private Label totalScore = new Label("SCOREBOARD");
 
+    private Button diceButtons [] = new Button[5]; // dice images for roll values and reserve toggle
+    private Image diceNullImg = new Image("resources/diceNull.png"); // default image for dice
+    private Image rules = new Image("resources/helpview.png");
+    private Label numberPlayers = new Label("Number of players: " + playerobj.getPlayers()); // label that contain's the amount of players playing
+    private Label rollVal = new Label("You rolled a: "); // value of the roll
+    private Label curPlayer = new Label("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // who the current player is
+    private Label numRolls = new Label("Rolls Left: "+ playerobj.getreroll()); // number of rolls available per turn
+    private Label availableChoice = new Label(""); // tells player if option is already taken
+    private TextArea textarea = new TextArea("Beginning the game is simple, type how many players will play in the box and click the 'click me to play button'. Once in game the player will roll the dice, if the player chooses they may select dice they wish to reserve and roll again or pick a category that will give them points. If the player changes their mind they may choose to unselect a die at any time and that die will roll when the user selects the roll button. The player gets three rolls and then must decide on the category that would best suit their current situation. When all players have all categories scorred the game is over and a winner will be determined.");
+    private TextField input = new TextField("# of players?"); // field for the number of players playing
+    private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
+    "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
+    "YAHTZEE! | 50 points", "Chance | Total of All 5 Dice"}; // list of player's scoring options for dice
+
+    private String [] scoreOptions = new String[] {"Aces: 1's","Twos: 2's","Threes: 3's", "Fours: 4's",
+    "Fives: 5's", "Sixes: 6's", "3 of A Kind", "4 of A Kind", "Full House","Small Straight", "Large Straight", 
+    "YAHTZEE!", "Chance"}; // list of player's scoring options for sBoard
 
     public static void main(String[] args) { // main, runs start function
         launch(args);
@@ -55,46 +60,164 @@ public class guiWhy extends Application // Start of Class
     public void start(Stage primaryStage) {
         window = primaryStage; // set window to primary stage
 
+        ///////////////////////////////////////////////// START OF LAYOUT 1
+
+        
+      Canvas canvas = new Canvas(350,200 ); // canvas upon gc graphics title will be drawn
+
+      GraphicsContext gc = canvas.getGraphicsContext2D();
+         
+     gc.setFill( Color.RED );
+     gc.setStroke( Color.BLACK );
+     gc.setLineWidth(2);
+     Font theFont = Font.font( "Times New Roman", FontWeight.BOLD, 48 );
+     gc.setFont( theFont );
+     gc.fillText( "Yahtzee!", 90, 35 );
+     gc.strokeText( "Yahtzee!",90, 35 );
+    // Image dice = new Image( "resources/dice.png" );
+     //gc.drawImage( dice, 130, 100 );      // END OF GRAPHICS DRAW
+
+
+    for (int i =0; i<5; i++) // set up dice images
+    {
+      int repetitive =i; // avoid final issue with i on setOnAction reserveDice call
+     diceButtons[i] = new Button("",new ImageView(diceNullImg)); //set up intial dice images (change dice to array so, this could be 1 for loop)
+     diceButtons[i].setStyle("-fx-background-color: transparent;"); // set buttons to transparent so only the image is shown
+     diceButtons[i].setOnAction(e->{ reserveDice(repetitive);}); 
+    }
+
+        Image ximg = new Image("resources/x.png"); // default image for dice
+        Button xbut=new Button("", new ImageView(ximg));
+        xbut.setStyle("-fx-background-color: transparent;");
+        Label olabel = new Label("= Reroll Dice"); // set up welcome label
+
+        Image oimg = new Image("resources/o.png"); // default image for dice
+        Button obut=new Button("", new ImageView(oimg));
+        obut.setStyle("-fx-background-color: transparent;");
+        Label xlabel = new Label("= Don't Reroll"); // set up welcome label
+
+                
+        xlabel.setPadding(new Insets(6,0,0,-15));
+        olabel.setPadding(new Insets(6,0,0,-15));
+
+     
         //Button 1
         Label label1 = new Label("Yahtzee!"); // set up welcome label
-       // Button button1 = new Button("Go to scene 2"); // no longer needed
-       // button1.setOnAction(e -> window.setScene(scene2)); 
+        label1.setFont(Font.font("Arial Black",25));
 
-        button2 = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
-        button2.setOnAction(e->setPlayer(input)); 
-
-        //Layout 1 - elements in vertical column
+        Button startGame = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
+        Button instruct = new Button("Instructions"); // FINISH?
+        startGame.setOnAction(e->{ setPlayerGui(input);}); // sets up intial player values
+        input.setMaxWidth(310); // set textfeild width where user enters number of players
+        input.setOnAction(e->{ setPlayerGui(input);});
+        instruct.setOnAction(e->{instructbutton();});
+        //Layout 1 - elements in vertical column for main menu/start screen
+        textarea.setWrapText(true);
+        textarea.setEditable(false);
+       
         VBox layout1 = new VBox(20);
         layout1.setAlignment(Pos.BASELINE_CENTER);
-        layout1.getChildren().addAll(label1, input, button2);
-        scene1 = new Scene(layout1, 350, 300);
-
+        layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
+        scene1 = new Scene(layout1, 1030, 770);
+        
+        ///////////////////////////////////////////////////////////////////////////////////// START OF LAYOUT 2
 
         //Button 2
-        Button button2 = new Button("Go back to the Main Menu");
-        button2.setOnAction(e -> {
-          window.setScene(scene1); saveGame();}); // change scene to main menu and saveGame func
+        Button Menu = new Button("Back to the Main Menu");
+        Menu.setOnAction(e -> {
+         window.setScene(scene1); playerobj.saveGame();}); // change scene to main menu and saveGame func
 
-        Button button3 = new Button("Increment current player by 1");
-        button3.setOnAction(e -> setCurrentPlayer()); // increment turn to next player or next roll if 1 player
+        Button button3 = new Button("Next Player/Turn");
+        button3.setOnAction(e -> {playerobj.setCurrentPlayer(); curLabel();}); // increment turn to next player or next roll if 1 player
 
-        // Button Roll
-        roll.setOnAction(e->YahtzeeRollLogic()); // roll 5 di, calls rollLogic function
+        HBox topBorder = new HBox(); // HBox and Border Top
+        topBorder.setPadding(new Insets(10,0,0,0));
+        topBorder.setSpacing(10);
+        curPlayer.setFont(Font.font("Arial Black",14));
+        HBox.setMargin(curPlayer,new Insets(5,0,0,0));
+        topBorder.getChildren().addAll(Menu,button3,curPlayer,obut,olabel,xbut,xlabel);
 
-        //Layout 2
-        FlowPane layout2 = new FlowPane(20,20); // scene 2 element put into a FlowPane
-        layout2.getChildren().addAll(button2,button3, numberPlayers, roll, rollVal,curPlayer, numRolls);
+           // Button Roll
+           Button roll = new Button("Roll!"); // button to roll dice 
+           roll.setFont(Font.font("Arial Black",14));
+           roll.setOnAction(e->{rollSet();}); // roll 5 di, calls rollLogic function
 
+        HBox innercenterBorder1 = new HBox();
+        HBox innercenterBorder2 = new HBox(30);
+        HBox innercenterBorder3 = new HBox();
+
+        innercenterBorder1.getChildren().addAll(diceButtons[0],diceButtons[1],diceButtons[2],diceButtons[3],diceButtons[4]);
+        innercenterBorder2.getChildren().addAll(numberPlayers, roll, rollVal, numRolls);
+        innercenterBorder3.getChildren().addAll(availableChoice);
+
+
+        VBox centerBorder = new VBox(40);
+        centerBorder.getChildren().addAll(innercenterBorder1,innercenterBorder2,innercenterBorder3);
+
+        //HBox bottomBorder = new HBox();
+        //bottomBorder.setSpacing(10);
+        //bottomBorder.setPadding(new Insets(10,10,10,10));
+        //bottomBorder.getChildren().addAll(numberPlayers, roll, rollVal, numRolls, availableChoice);
+
+        //LAYOUT 2 grid and border
+        GridPane eastBorder = new GridPane(); // scene 2 element put into a FlowPane. Categories[]
+        eastBorder.setVgap(20);
+        eastBorder.setPadding(new Insets(10,0,-40,10));
+
+        GridPane westBorder = new GridPane(); //sBoard
+        westBorder.setVgap(25);
+        westBorder.setPadding(new Insets(30,0,0,10));
+        westBorder.setGridLinesVisible(true);
+
+        sboardTitle.setFont(Font.font("Arial Black",14));
+        westBorder.getChildren().add(sboardTitle);
+      
+
+        BorderPane layout2 = new BorderPane(); // scene 2 main gui layout
+       //////////////////////////////////////////////Layout 3//////////////////////////////////////////////
+        VBox Layout3 = new VBox();
+       
+       Layout3.setPadding(new Insets(15, 12, 15, 12));
+    Layout3.setSpacing(10);
+ 
+     final ImageView selectedImage = new ImageView(); 
+      selectedImage.setImage(rules);
+      Layout3.setAlignment(Pos.CENTER);
+       Layout3.getChildren().addAll(Menu,textarea,selectedImage);
+       
+       /////////////////////////////////////////////End Layout 3///////////////////////////////////////////
         for (setButtonArr=0; setButtonArr<13; setButtonArr++ ) // set button text to correct numbered option.
         {
           int i = setButtonArr; // set i here because of final int issue if declared in for loop
-          categories[setButtonArr] = new Button("Option " + (setButtonArr+1));
-          categories[setButtonArr].setOnAction(e->yahtzeeScoreRoll(i+1)); // Score roll based on corresponding number
-          layout2.getChildren().add(categories[setButtonArr]); // add button at i to the layout
-        }
-        layout2.setAlignment(Pos.CENTER); // position layout center
-        scene2 = new Scene(layout2, 450, 400); // set scene to new scene
 
+          categories[setButtonArr] = new Button(options[i]); // Set Buttons for scoring
+          categories[setButtonArr].setOnAction(e->scoreRoll(i+1)); // Score roll based on corresponding number
+          GridPane.setConstraints(categories[setButtonArr], 0,i); // add button at i to the layout
+          categories[i].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE); // set button to a max size so they are all the same width
+          categories[i].setFont(Font.font("Arial Black",14)); // set font style
+          eastBorder.getChildren().add(categories[i]); // add each button to the eastborder vbox
+
+          sBoard[setButtonArr] = new Label(scoreOptions[i]+" -"); // set Label for sBoard
+          GridPane.setConstraints(sBoard[setButtonArr], 0,i); // add button at i to the layout
+          sBoard[i].setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE); // set button to a max size so they are all the same width
+          sBoard[i].setFont(Font.font("Verdana",14)); // set font style
+          westBorder.add(sBoard[i],0,i+1); // add each button to the eastborder vbox // i + 1 to avoid aces and scoreboard on same cell
+        }
+
+        layout2.setRight(eastBorder);
+        layout2.setLeft(westBorder);
+        layout2.setTop(topBorder);
+       // layout2.setBottom(bottomBorder);
+        layout2.setCenter(centerBorder);
+
+        BorderPane.setMargin(centerBorder, new Insets(50,0,0,0));
+        BorderPane.setMargin(westBorder, new Insets(0,12,0,12));
+        BorderPane.setMargin(eastBorder, new Insets(-41,20,0,0));
+      
+        scene2 = new Scene(layout2, 1030, 770); // set scene to new scene
+        scene3 = new Scene(Layout3, 1030, 770);
+          scene3.getStylesheets().add("style_1.css");
+        
         //Display scene 1 at first
         scene1.getStylesheets().add("style.css");
         window.setScene(scene1);
@@ -102,300 +225,128 @@ public class guiWhy extends Application // Start of Class
         window.show();
     }
 
-    public void setPlayer(TextField input)
-    {         // Try-catch that catches if entered value is not a valid integer
-        try            
-        {
-            players = Integer.parseInt(input.getText());    
-        } catch (NumberFormatException e) 
-        {
-            input.setText("Invalid value! Please enter a positive number");
-            return;
-        }
-            // Checks that passed in int is greater than 0s
-        if(Integer.parseInt(input.getText())<1)
-        return;
-
-        System.out.println(players);
-        YahtzeeSetupLogic();
-        numberPlayers.setText("Number of players: "+players);
+    public void setPlayerGui(TextField input)
+    {    
+      playerobj = new logic();
+      curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
+      if(playerobj.setPlayer(input))
+      {
+        numberPlayers.setText("Number of players: "+playerobj.getPlayers());
         window.setScene(scene2);
-        return;
+      }
+      else return;
     }
 
-    public int getPlayer()
+    public void curLabel()
     {
-        return players;
-    }
+       curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
+       System.out.print(playerobj.getCurPlayer());
+       numRolls.setText("Rolls Left: "+ playerobj.getreroll());
+       rollVal.setText("You rolled a: ");
 
-    public void setCurrentPlayer()
-    {
-        currentPlayer=(currentPlayer+1)%players;
-        curPlayer.setText("Player "+(currentPlayer+1)+"'s Turn");
-        System.out.print(currentPlayer);
-        reroll=3;
-        numRolls.setText("Rolls Left: "+ reroll);
-        rollVal.setText("You rolled a: ");
-    }
+       for(int i =0; i<5; i++)
+       diceButtons[i].setGraphic(new ImageView(diceNullImg)); // reset dice images to dicenull/?
 
-    
-   public void YahtzeeSetupLogic()
-   {
-     System.out.print("Function started with given parameter "+ players + " ");
-     playerobj = new Multiplayer[players];
- 
-     for(int i =0; i<players; i++)
-     playerobj[i] = new Multiplayer(); // intialize player array
-   }
- 
-     // USED TO BE INFINITE LOOP
-   public void YahtzeeRollLogic()
-   {
-        if(reroll!=0)
-        rollVal.setText("You rolled a: "); // reset roll label
-
-         if(gameOver(playerobj))
-         {
-          System.out.print("GAME OVER");
-          return; // change to bool or kill statement
-         }
- 
-         if(fullScorecard(playerobj[currentPlayer]))
-         {
-           System.out.println("Player is out of categories to score!");
-           currentPlayer++;
-           return; 
-         }
-
-         if (reroll==0)
-         {
-         System.out.println("Player is out of rolls!");
-         return;
-         }
+        for(int i=0;i<13;i++) // set scoreboard
+        {
+        if(playerobj.getSboard(i)!=-1)
+        sBoard[i].setText(scoreOptions[i]+": "+playerobj.getSboard(i));
+        else
+        sBoard[i].setText(scoreOptions[i]+" -"); // if other players categories values are still default
+        }
         
-       System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN");
-       reroll--; // rest reroll
-       if(reroll!=0)
-       numRolls.setText("Rolls Left: "+ reroll);
-       else
-       numRolls.setText("OUT OF ROLLS!");
-       
-       int rolled; // track single roll value
-        // roll loop that rolls 5 random dice, puts it in rolls, sorts rolls, and prints out roll. Also asks user for reroll
-       for(int i =0; i < 5; i++)
-       {
-        rolled = rand.nextInt(6)+1;
-        playerobj[currentPlayer].setRoll(i, rolled);
-       }
- 
-        playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
-        for(int i = 0; i < 5; i++) // set roll label to sorted roll
-        rollVal.setText(rollVal.getText()+ " " +playerobj[currentPlayer].getRoll(i));
- 
-       for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
-         System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  
- 
-       System.out.println("\nREROLL?");
-       return;
-       }
+    }
 
-       
-       public void yahtzeeScoreRoll(int choice)
-       {
-        System.out.print(choice);
-        if(playerobj[currentPlayer].getScoreboard(choice -1)>-1 ) //  while choice is taken alert user and prompt for input
-       {
-         System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
-         //choice = cat.nextInt();
-         return;
-       }
-       if(rollVal.getText()=="You rolled a: ")
+    public void reserveDice(int idex)
+    {
+      if(rollVal.getText()!="You rolled a: ")
+      {
+        playerobj.toggleDice(idex);
+
+        for(int i =0; i<5; i++)
+        {          
+          if (playerobj.getDiceToggle(i)==0)
+          diceButtons[i].setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i))+".png")));
+          else
+          diceButtons[i].setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i))+"dark.png")));
+        }
+      
+      }
+    }
+
+    public void rollSet()
+    {
+      if(playerobj.getreroll()!=0)
+      rollVal.setText("You rolled a: "); // reset roll label
+
+      int test = playerobj.YahtzeeRollLogic();
+      
+      if(test==0)
+      {
+        numRolls.setText("OUT OF ROLLS!");
+        return;
+      }
+      if(test==-1)
+      {
+        playerobj.setCurrentPlayer(); 
+        curLabel();
+        return;
+      }
+
+      //if(playerobj.getreroll()!=0)
+      numRolls.setText("Rolls Left: "+ playerobj.getreroll());
+
+      for(int i = 0; i < 5; i++) // set roll label to sorted roll
+        rollVal.setText(rollVal.getText()+ " " +playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i));
+
+        for(int i =0; i<5; i++)
+        {          
+          if (playerobj.getDiceToggle(i)==0)
+          diceButtons[i].setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i))+".png")));
+          else
+          diceButtons[i].setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i))+"dark.png")));
+        }
+    }
+
+    public void scoreRoll(int choice)
+    {
+           if(rollVal.getText()=="You rolled a: ")
        {
         System.out.println("You need to roll first!");
         return;
        }
- 
-       playerobj[currentPlayer].setScoreboard(choice-1,categories(playerobj[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
-       playerobj[currentPlayer].setScore(playerobj[currentPlayer].getScoreboard(choice-1)); // assign total score to itself + new points from category
- 
-       System.out.println("current score is:" + playerobj[currentPlayer].getScore()); // print our current score and score for that specific roll
-       System.out.println("Score for category " +choice+ " is " + playerobj[currentPlayer].getScoreboard(choice -1));
-       
-       setCurrentPlayer();
-     }
- 
-   
- 
-   public static int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
-   {
-     int score = 0;
-    
-     if (choice < 7) // if less than 7, then score is the sum of dice that value was chosen by user (choice)
-     {
-         for(int i =0; i< rolls.size(); i++)
-         {
-         if(rolls.get(i)== choice)
-         score+=choice;
-         }
- 
-         return score;
-     }
-     
-     if (choice == 7 || choice == 8) // if 7 or 8 check frequency for three of a kind or four of a kind. If valid score is sum off all dice, otherwise 0
-     {
-         int threeKind = Collections.frequency(rolls, rolls.get(0));
-         int threeKindMid = Collections.frequency(rolls, rolls.get(2));
-         int threeKind2 = Collections.frequency(rolls, rolls.get(4));
-         if(choice==7)
-         {
-             if (threeKind > 2 || threeKind2 > 2 || threeKindMid > 2)
-             {
-                 for(int total : rolls)
-                     score+=total;
-             }
-         }
-         else if (choice == 8)
-         {
-             if (threeKind > 3 || threeKind2 > 3)
-             {
-                 for(int total : rolls)
-                     score+=total;
-             }
-         }
-         
-             return score;
-             
-     }
- 
-     if (choice == 9) // if 9, check for full house. Score is 25
-     {
-         int fullHouse = Collections.frequency(rolls, rolls.get(0));
-         int fullHouse2 = Collections.frequency(rolls, rolls.get(4));
- 
-          if  (  (fullHouse > 1 & fullHouse2 > 2) || (fullHouse > 2 && fullHouse2 > 1)  )
-             score+=25;
- 
-         return score;
-     }
- 
-     if (choice == 10) // if 10 look for small straight, 4 in a row. Score is 30
-     {
-       List<Integer> Straights = rolls.stream().distinct().collect(Collectors.toList());
-       if(Straights.size()<4) // convert rolls into distinct list with uniques integers
-       return score; // if size is less than 4, than can't be a small straight
- 
-       boolean straight=true;
- 
-         for(int i=0; i<3; i++)
-         {
-          if (Straights.get(i)!=Straights.get(i+1)-1)
-          straight=false;
-         }
-          if(straight==true)
-          return 30;
-       
-       //otherwise size is 5
-       if(Straights.size()==5)
+
+       if(playerobj.yahtzeeScoreRoll(choice))
        {
-         for(int i=1; i<Straights.size()-1; i++)
-         {
-          if (Straights.get(i)!=Straights.get(i+1)-1)
-          straight=false;
-         }
-         if(straight==true)
-         return 30;
- 
-         for(int i=0; i<Straights.size()-2; i++)
-         { 
-          if (Straights.get(i)!=Straights.get(i+1)-1)
-          straight=false;
+       rollVal.setText("You rolled a: ");
+       numRolls.setText("Rolls Left: "+ playerobj.getreroll());
+       curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
+       
+       for(int i =0; i<5; i++)
+       playerobj.setDiceToggle(i,0);
+
+       for(int i =0; i<5; i++)
+        diceButtons[i].setGraphic(new ImageView(diceNullImg)); // reset dice images to dicenull/?
+
+        for(int i=0;i<13;i++) // set scoreboard
+        {
+        if(playerobj.getSboard(i)!=-1)
+        sBoard[i].setText(scoreOptions[i]+": "+playerobj.getSboard(i));
+        else
+        sBoard[i].setText(scoreOptions[i]+" -"); // if other players categories values are still default
         }
-         if(straight==true)
-         return 30;
-       }
-       return score;
-     }
-     if (choice == 11) // if 11 look for large straight, 5 in a row. Score is 40
-     {
-       boolean straight=true;
-       for(int i=0; i<rolls.size()-1; i++)
-       {
-         if (rolls.get(i)!=rolls.get(i+1)-1)
-         straight=false;
-       }
-       if(straight==true)
-       score += 40;
- 
-       return score;
-     }
- 
-     if (choice == 12) // if 12 look for five of a kind. Score is 50, YAHTZEE
-     {
-         int fiveKind = Collections.frequency(rolls, rolls.get(0));
-         if (fiveKind > 4)
-           score+=50;
- 
-         return score;
-     }
- 
-     if (choice == 13) // if 13 chance, score is sum of dice
-     {
-         for(int total : rolls)
-             score+=total;
- 
-             return score;
-     }
- 
-     return score;
-   }
- 
-   public static boolean fullScorecard (Multiplayer scoreBoard) // checks scoreboard to see if it is full
-   {
-       boolean full = true;
-       for (int i=0; i<13; i++)
-       {
-         if(scoreBoard.getScoreboard(i) <0)
-         full = false;
-       }
- 
-     return full;
-   }
- 
-   public static boolean gameOver (Multiplayer[] scoreBoard) // uses fullScorecard to check if every player's scorecard is full
-   {
-     boolean full = true;
-       for (int i=0; i<scoreBoard.length; i++)
-       {
-         if(!fullScorecard(scoreBoard[i]))
-         full = false;
-       }
- 
-     return full;
-   }
-
-   public void saveGame()
-   { // try block neccessarry due to ioexception 
-    try            
-    {
-      FileWriter writeSave = new FileWriter("saveGame.txt");
-      for(int i =0; i<13; i++)
-      {
-      writeSave.write("boo"); 
-      }
-
-
       
-      writeSave.close();   
-    } catch (IOException e) 
-    {
-        input.setText("Issue with save file");
-        return;
-    }
-    
-   }
+        availableChoice.setText("");// SET LABEL TO ""
 
-   public void loadGame()
-   {
-    File saveFile = new File("saveGame.txt");
-   }
-}
+       }
+       else
+       availableChoice.setText("Option Already Taken!");// SET LABEL TO OPTION TAKEN!
+    }
+
+    private void instructbutton() {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        window.setScene(scene3);
+    
+    }
+
+  }
