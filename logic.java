@@ -10,7 +10,7 @@ import java.util.ArrayList; // for arraylist
 import java.util.List;  // for list
 
 // Libraries for writing and reading to file. Save and load game functionality
-import java.io.File; // for saving and loading game
+//import java.io.File; // for saving and loading game
 import java.io.FileWriter; // write files
 import java.io.IOException;
 //import java.util.Scanner; // reading from file
@@ -335,6 +335,12 @@ public void setup(int p) // setup inital values
      return playerobj[currentPlayer].getScoreboard(i);
    }
 
+   
+   public int getTotalScore(int i)
+   {
+     return playerobj[currentPlayer].getScore();
+   }
+
    public Multiplayer[] getMulti() // get multiplayer obj.. used in gui setup of scene 2
    {
        return playerobj;
@@ -361,8 +367,8 @@ public void setup(int p) // setup inital values
     
    }
 
-   public void loadGame() // MIGHT implement load from save option
+   /*public void loadGame() // MIGHT implement load from save option
    {
     File saveFile = new File("saveGame.txt");
-   }
+   }*/
 }
