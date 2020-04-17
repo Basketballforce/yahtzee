@@ -33,7 +33,7 @@ public class guiWhy extends Application // Start of Class
     private Label [] sBoard = new Label [13];
     private Label sboardTitle = new Label("SCOREBOARD");
     private Label totalScore = new Label("SCOREBOARD");
-
+    private TextArea howmanyplayers = new TextArea("Please select how many players");
     private Button diceButtons [] = new Button[5]; // dice images for roll values and reserve toggle
     private Image diceNullImg = new Image("resources/diceNull.png"); // default image for dice
     private Image rules = new Image("resources/helpview.png");
@@ -63,7 +63,7 @@ public class guiWhy extends Application // Start of Class
         ///////////////////////////////////////////////// START OF LAYOUT 1
 
         
-      Canvas canvas = new Canvas(350,200 ); // canvas upon gc graphics title will be drawn
+      Canvas canvas = new Canvas(500,50 ); // canvas upon gc graphics title will be drawn
 
       GraphicsContext gc = canvas.getGraphicsContext2D();
          
@@ -72,8 +72,8 @@ public class guiWhy extends Application // Start of Class
      gc.setLineWidth(2);
      Font theFont = Font.font( "Times New Roman", FontWeight.BOLD, 48 );
      gc.setFont( theFont );
-     gc.fillText( "Yahtzee!", 90, 35 );
-     gc.strokeText( "Yahtzee!",90, 35 );
+     gc.fillText( "How many Players?", 90, 35 );
+     gc.strokeText( "How many Players?",90, 35 );
     // Image dice = new Image( "resources/dice.png" );
      //gc.drawImage( dice, 130, 100 );      // END OF GRAPHICS DRAW
 
@@ -107,17 +107,43 @@ public class guiWhy extends Application // Start of Class
 
         Button startGame = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
         Button instruct = new Button("Instructions"); // FINISH?
-        startGame.setOnAction(e->{ setPlayerGui(input);}); // sets up intial player values
+       // startGame.setOnAction(e->{ setPlayerGui(input);}); // sets up intial player values
         input.setMaxWidth(310); // set textfeild width where user enters number of players
-        input.setOnAction(e->{ setPlayerGui(input);});
+       // input.setOnAction(e->{ setPlayerGui(input);});
         instruct.setOnAction(e->{instructbutton();});
         //Layout 1 - elements in vertical column for main menu/start screen
         textarea.setWrapText(true);
         textarea.setEditable(false);
        
+                  Button player1 = new Button();
+                 player1.setGraphic(new ImageView(new Image("resources/dice1.png")));
+                  player1.setOnAction(e->{ setPlayerGui(1);});
+                  
+                  Button player2 = new Button();
+                  player2.setGraphic(new ImageView(new Image("resources/dice2.png")));
+                    player2.setOnAction(e->{ setPlayerGui(2);});
+                  
+                  Button player3 = new Button();
+                  player3.setGraphic(new ImageView(new Image("resources/dice3.png")));
+                 player3.setOnAction(e->{ setPlayerGui(3);});
+                  
+                 Button player4 = new Button();
+                  player4.setGraphic(new ImageView(new Image("resources/dice4.png")));
+                   player4.setOnAction(e->{ setPlayerGui(4);});
+                  
+                   Button player5 = new Button();
+                  player5.setGraphic(new ImageView(new Image("resources/dice5.png")));
+                player5.setOnAction(e->{ setPlayerGui(5);});
+                  
+                  Button player6 = new Button();
+                  player6.setGraphic(new ImageView(new Image("resources/dice6.png")));
+                  player6.setOnAction(e->{ setPlayerGui(6);});
+                  
+                  HBox buttonline = new HBox(player1, player2, player3, player4, player5, player6);
+                buttonline.setAlignment(Pos.CENTER);
         VBox layout1 = new VBox(20);
-        layout1.setAlignment(Pos.BASELINE_CENTER);
-        layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
+        layout1.setAlignment(Pos.CENTER);
+        layout1.getChildren().addAll(label1, canvas,buttonline, instruct);
         scene1 = new Scene(layout1, 1030, 770);
         
         ///////////////////////////////////////////////////////////////////////////////////// START OF LAYOUT 2
@@ -225,11 +251,11 @@ public class guiWhy extends Application // Start of Class
         window.show();
     }
 
-    public void setPlayerGui(TextField input)
+    public void setPlayerGui(int input1)
     {    
       playerobj = new logic();
       curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
-      if(playerobj.setPlayer(input))
+      if(playerobj.setPlayer(input1))
       {
         numberPlayers.setText("Number of players: "+playerobj.getPlayers());
         window.setScene(scene2);
