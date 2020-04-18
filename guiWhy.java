@@ -35,16 +35,17 @@ public class guiWhy extends Application // Start of Class
 
     private Button diceButtons [] = new Button[5]; // dice images for roll values and reserve toggle
     private Image diceNullImg = new Image("resources/diceNull.png"); // default image for dice
-    private Image rules = new Image("resources/helpviewSmall.png");
+    private Image rules = new Image("resources/helpviewSmallEdited.png");
 
  //   private Label numberPlayers = new Label("     Number of players: " + playerobj.getPlayers()); // label that contain's the amount of players playing
     private Label rollVal = new Label("You rolled a: "); // value of the roll
     private Label curPlayer = new Label("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // who the current player is
     private Label numRolls = new Label("Rolls Left: "+ playerobj.getreroll()); // number of rolls available per turn
     private Label availableChoice = new Label(""); // tells player if option is already taken
+    private Label EndWinner = new Label(""); // tells player if option is already taken
     
     private TextField input = new TextField("# of players?"); // field for the number of players playing
-    private TextArea textarea = new TextArea("Beginning the game is simple, type how many players will play in the box and click the 'click me to play button'. Once in game the player will roll the dice, if the player chooses they may select dice they wish to reserve and roll again or pick a category that will give them points. If the player changes their mind they may choose to unselect a die at any time and that die will roll when the user selects the roll button. The player gets three rolls and then must decide on the category that would best suit their current situation. When all players have all categories scorred the game is over and a winner will be determined.");
+    private TextArea textarea = new TextArea("Beginning the game is simple, type how many players will play in the box and click the 'click me to play button'. Once in game the player will roll the dice, if the player chooses they may select dice they wish to reserve and roll again or pick a category that will give them points. If the player changes their mind they may choose to unselect a die at any time and that die will roll when the user selects the roll button. The player gets three rolls and then must decide on the category that would best suit their current situation. When all players have all categories scorred the game is over and a winner will be determined.\n\n Player will receive a 35 point bonus at the end of the game if they scored more than 63 in the upper section (Total of 1 dice trough total of 6 dice)\n If you are playing as 1 player than your goal is to be a predetemined score of 220!");
     private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
     "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
     "YAHTZEE! | 50 points", "Chance | Total of All 5 Dice"}; // list of player's scoring options for dice
@@ -126,6 +127,10 @@ public class guiWhy extends Application // Start of Class
         Menu.setOnAction(e -> {
           window.setScene(scene1); playerobj.saveGame();}); // change scene to main menu and saveGame func
 
+          Button InstructionsMenu = new Button("Back to the Main Menu");
+          InstructionsMenu.setOnAction(e -> {
+            window.setScene(scene1); playerobj.saveGame();});
+
 
         HBox topBorder = new HBox(); // HBox and Border Top, Contains main menu, current player, dice help/tip images
         topBorder.setPadding(new Insets(10,0,0,22));
@@ -143,14 +148,16 @@ public class guiWhy extends Application // Start of Class
 
         HBox innercenterBorder1 = new HBox(); // Hbox for center row 1, contains row images with roll values
         HBox innercenterBorder2 = new HBox(30); // Hbox for center row 2, contains roll button, numeric roll values, number of rolls left and if availableChoice label
-        //HBox innercenterBorder3 = new HBox(); // center row 3, with minimal scoreboard for all players
+        HBox innercenterBorder3 = new HBox(); // center row 3, with minimal scoreboard for all players and label with winner
 
         innercenterBorder1.getChildren().addAll(diceButtons[0],diceButtons[1],diceButtons[2],diceButtons[3],diceButtons[4]);
         innercenterBorder2.getChildren().addAll(roll, rollVal, numRolls, availableChoice);
         innercenterBorder2.setPadding(new Insets(0, 0, 0, 12));
+        innercenterBorder3.setAlignment(Pos.CENTER);
+        innercenterBorder3.getChildren().addAll(EndWinner);
 
         VBox centerBorder = new VBox(40); // main vbox for center border that contains inner rowsS
-        centerBorder.getChildren().addAll(innercenterBorder1,innercenterBorder2);
+        centerBorder.getChildren().addAll(innercenterBorder1,innercenterBorder2,innercenterBorder3);
 
         //LAYOUT 2 grid and border
         GridPane eastBorder = new GridPane(); // scene 2 element put into a FlowPane. Categories[]
@@ -212,7 +219,7 @@ public class guiWhy extends Application // Start of Class
         final ImageView selectedImage = new ImageView();  // image for instructions with roll examples
         selectedImage.setImage(rules);
         Layout3.setAlignment(Pos.CENTER);
-        Layout3.getChildren().addAll(Menu,textarea,selectedImage); // add menu button, textarea, and image to instructions scene
+        Layout3.getChildren().addAll(InstructionsMenu,textarea,selectedImage); // add menu button, textarea, and image to instructions scene
         
         scene2 = new Scene(layout2, 1030, 740); // set scene to new scene
         scene3 = new Scene(Layout3, 1030, 770);
@@ -293,11 +300,28 @@ public class guiWhy extends Application // Start of Class
         numRolls.setText("OUT OF ROLLS!");
         return;
       }
-      if(test==-1)
+      if(test==-1) // change players
       {
         playerobj.setCurrentPlayer(); 
         curLabel();
         return;
+      }
+      if(test==-2) //end game and display winner
+      {
+        int winner = playerobj.winner();
+
+        if(winner>-1)
+        EndWinner.setText("PLAYER "+(winner+1)+" WINS with "+playerobj.getTotalScore(winner)+" points!");
+
+        if(winner==-1)
+        EndWinner.setText("PLAYER 1 WINS, beating 220 with "+playerobj.getTotalScore(winner)+" points!");
+
+        if(winner==-2)
+        EndWinner.setText("PLAYER 1 Loses, unable to beat 220 with "+playerobj.getTotalScore(winner)+" points.");
+        
+        if(winner==-2)
+        EndWinner.setText("It's a TIE!");
+        
       }
 
       //if(playerobj.getreroll()!=0)

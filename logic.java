@@ -95,7 +95,7 @@ public void setup(int p) // setup inital values
          if(gameOver(playerobj)) // if the game is over return 0 and print game over... to be changed to results or winner screen in gui
          {
           System.out.print("GAME OVER");
-          return 0; // change to bool or kill statement
+          return -2; // change to bool or kill statement
          }
  
          if(fullScorecard(playerobj[currentPlayer])) // if a player's scorecard is full then return -1
@@ -338,7 +338,7 @@ public void setup(int p) // setup inital values
    
    public int getTotalScore(int i)
    {
-     return playerobj[currentPlayer].getScore();
+     return playerobj[i].getScore();
    }
 
    public Multiplayer[] getMulti() // get multiplayer obj.. used in gui setup of scene 2
@@ -367,6 +367,29 @@ public void setup(int p) // setup inital values
     
    }
 
+   public int winner()
+   {
+     int winner=-3; // indicates tie!
+
+     if(playerobj.length>1) // if more than one player
+     {
+      for (int i=0; i<playerobj.length-1; i++)
+      {
+        if(playerobj[i].getScore()<playerobj[i+1].getScore())
+        winner=i+1;
+        else if(playerobj[i].getScore()>playerobj[i+1].getScore())
+        winner=i;
+      }
+      return winner;
+    }
+    else // only one player
+    winner=playerobj[0].getScore();
+    if(winner<220) // if winner did NOT score better than predetermined score to beat
+    return -2;
+    else
+    return -1; // if they did score more
+
+   }
    /*public void loadGame() // MIGHT implement load from save option
    {
     File saveFile = new File("saveGame.txt");
