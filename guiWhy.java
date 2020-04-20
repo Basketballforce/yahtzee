@@ -9,15 +9,11 @@ import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.text.Font;
 
-//import javafx.event.*;
-//import javax.swing.JFrame;  
-
 //Graphics Libraries 
 import javafx.scene.canvas.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.scene.image.*;
-
 
 public class guiWhy extends Application // Start of Class
 {
@@ -36,6 +32,7 @@ public class guiWhy extends Application // Start of Class
     private Button diceButtons [] = new Button[5]; // dice images for roll values and reserve toggle
     private Image diceNullImg = new Image("resources/diceNull.png"); // default image for dice
     private Image rules = new Image("resources/helpviewSmallEdited.png");
+    private Image rulesSmall = new Image("resources/helpviewSmaller.png");
 
  //   private Label numberPlayers = new Label("     Number of players: " + playerobj.getPlayers()); // label that contain's the amount of players playing
     private Label rollVal = new Label("You rolled a: "); // value of the roll
@@ -45,7 +42,7 @@ public class guiWhy extends Application // Start of Class
     private Label EndWinner = new Label(""); // tells player if option is already taken
     
     private TextField input = new TextField("# of players?"); // field for the number of players playing
-    private TextArea textarea = new TextArea("Beginning the game is simple, type how many players will play in the box and click the 'click me to play button'. Once in game the player will roll the dice, if the player chooses they may select dice they wish to reserve and roll again or pick a category that will give them points. If the player changes their mind they may choose to unselect a die at any time and that die will roll when the user selects the roll button. The player gets three rolls and then must decide on the category that would best suit their current situation. When all players have all categories scorred the game is over and a winner will be determined.\n\n Player will receive a 35 point bonus at the end of the game if they scored more than 63 in the upper section (Total of 1 dice trough total of 6 dice)\n If you are playing as 1 player than your goal is to be a predetemined score of 220!");
+    private TextArea textarea = new TextArea("Beginning the game is simple, type how many players will play in the box and click the 'click me to play button'. Once in game the player will roll the dice, if the player chooses they may select dice they wish to reserve and roll again or pick a category that will give them points. If the player changes their mind they may choose to unselect a die at any time and that die will roll when the user selects the roll button. The player gets three rolls and then must decide on the category that would best suit their current situation. When all players have all categories scorred the game is over and a winner will be determined.\n\n Player will receive a 35 point bonus at the end of the game if they scored more than 62 in the upper section (Total of 1 dice trough total of 6 dice)\n If you are playing as 1 player than your goal is to be a predetemined score of 220!");
     private String [] options = new String[] {"Total of Aces: 1's","Total of Twos: 2's","Total of Threes: 3's", "Total of Fours: 4's",
     "Total of Fives: 5's", "Total of Sixes: 6's", "3 of A Kind | Total of All 5 Dice", "4 of A Kind | Total of All 5 Dice", "Full House | 25 points","Small Straight | 30 points", "Large Straight | 40 points", 
     "YAHTZEE! | 50 points", "Chance | Total of All 5 Dice"}; // list of player's scoring options for dice
@@ -125,11 +122,11 @@ public class guiWhy extends Application // Start of Class
         //Button 2
         Button Menu = new Button("Back to the Main Menu");
         Menu.setOnAction(e -> {
-          window.setScene(scene1); playerobj.saveGame();}); // change scene to main menu and saveGame func
+          window.setScene(scene1);}); // change scene to main menu and saveGame func
 
           Button InstructionsMenu = new Button("Back to the Main Menu");
           InstructionsMenu.setOnAction(e -> {
-            window.setScene(scene1); playerobj.saveGame();});
+            window.setScene(scene1);});
 
 
         HBox topBorder = new HBox(); // HBox and Border Top, Contains main menu, current player, dice help/tip images
@@ -149,15 +146,32 @@ public class guiWhy extends Application // Start of Class
         HBox innercenterBorder1 = new HBox(); // Hbox for center row 1, contains row images with roll values
         HBox innercenterBorder2 = new HBox(30); // Hbox for center row 2, contains roll button, numeric roll values, number of rolls left and if availableChoice label
         HBox innercenterBorder3 = new HBox(); // center row 3, with minimal scoreboard for all players and label with winner
+        HBox innercenterBorder4 = new HBox(); // center row 3, with minimal scoreboard for all players and label with winner
 
         innercenterBorder1.getChildren().addAll(diceButtons[0],diceButtons[1],diceButtons[2],diceButtons[3],diceButtons[4]);
+        innercenterBorder1.setAlignment(Pos.CENTER);
+
         innercenterBorder2.getChildren().addAll(roll, rollVal, numRolls, availableChoice);
         innercenterBorder2.setPadding(new Insets(0, 0, 0, 12));
+        innercenterBorder2.setAlignment(Pos.CENTER);
+        
         innercenterBorder3.setAlignment(Pos.CENTER);
+
+        
+        EndWinner.setFont(Font.font("Arial Black",14));
         innercenterBorder3.getChildren().addAll(EndWinner);
+        innercenterBorder3.setPadding(new Insets(-40, 0, 0, 0));
+        
+        innercenterBorder4.setAlignment(Pos.CENTER);
+        innercenterBorder4.setPadding(new Insets(-40, 0, 0, 0));
+
+          
+        final ImageView helpfulHand = new ImageView();  // image for instructions with roll examples
+        helpfulHand.setImage(rulesSmall);
+        innercenterBorder4.getChildren().addAll(helpfulHand);
 
         VBox centerBorder = new VBox(40); // main vbox for center border that contains inner rowsS
-        centerBorder.getChildren().addAll(innercenterBorder1,innercenterBorder2,innercenterBorder3);
+        centerBorder.getChildren().addAll(innercenterBorder1,innercenterBorder2,innercenterBorder3,innercenterBorder4);
 
         //LAYOUT 2 grid and border
         GridPane eastBorder = new GridPane(); // scene 2 element put into a FlowPane. Categories[]
@@ -237,6 +251,8 @@ public class guiWhy extends Application // Start of Class
     {    
       playerobj = new logic();
       curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
+      EndWinner.setText(""); // reset winner text
+      availableChoice.setText("");// reset available text
       if(playerobj.setPlayer(input))
       {
         //numberPlayers.setText("     Number of players: "+playerobj.getPlayers());
@@ -266,6 +282,8 @@ public class guiWhy extends Application // Start of Class
 
         if(playerobj.getTotalScore(playerobj.getCurPlayer())==0)
         totalScore.setText("  Score:  - ");
+        else if(playerobj.getBonus())
+        totalScore.setText("  Score: : "+(playerobj.getTotalScore(playerobj.getCurPlayer())-35) +" \n  + 35 Bonus! " );
         else
         totalScore.setText("  Score: : "+playerobj.getTotalScore(playerobj.getCurPlayer()) );
         
@@ -314,12 +332,12 @@ public class guiWhy extends Application // Start of Class
         EndWinner.setText("PLAYER "+(winner+1)+" WINS with "+playerobj.getTotalScore(winner)+" points!");
 
         if(winner==-1)
-        EndWinner.setText("PLAYER 1 WINS, beating 220 with "+playerobj.getTotalScore(winner)+" points!");
+        EndWinner.setText("PLAYER 1 WINS, beating 220 with "+playerobj.getTotalScore(0)+" points!");
 
         if(winner==-2)
-        EndWinner.setText("PLAYER 1 Loses, unable to beat 220 with "+playerobj.getTotalScore(winner)+" points.");
+        EndWinner.setText("PLAYER 1 Loses, unable to beat 220 with "+playerobj.getTotalScore(0)+" points.");
         
-        if(winner==-2)
+        if(winner==-3)
         EndWinner.setText("It's a TIE!");
         
       }
@@ -369,6 +387,8 @@ public class guiWhy extends Application // Start of Class
 
         if(playerobj.getTotalScore(playerobj.getCurPlayer())==0)
         totalScore.setText("  Score:  - ");
+        else if(playerobj.getBonus())
+        totalScore.setText("  Score: : "+(playerobj.getTotalScore(playerobj.getCurPlayer())-35) +" \n  + 35 Bonus! " );
         else
         totalScore.setText("  Score: : "+playerobj.getTotalScore(playerobj.getCurPlayer()) );
       

@@ -74,6 +74,11 @@ public class Multiplayer
         score=currentScore;
     }
 
+    public void bonus()
+    {
+        score+=35;
+    }
+
     public int getRollSize()
     {
         return rolls.size();

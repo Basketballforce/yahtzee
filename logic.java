@@ -9,12 +9,6 @@ import java.util.Collections; // use collections methods such as frequency
 import java.util.ArrayList; // for arraylist 
 import java.util.List;  // for list
 
-// Libraries for writing and reading to file. Save and load game functionality
-//import java.io.File; // for saving and loading game
-import java.io.FileWriter; // write files
-import java.io.IOException;
-//import java.util.Scanner; // reading from file
-
 public class logic {
 
     //Game Logic Vars
@@ -157,6 +151,9 @@ public void setup(int p) // setup inital values
        // set scoreboard and score for current player
        playerobj[currentPlayer].setScoreboard(choice-1,categories(playerobj[currentPlayer].getRollList(), choice)); // assign scoreboard category to score of dice based on result of category method
        playerobj[currentPlayer].setScore();
+
+       if(getBonus()) // if player has reached the lower section bonus score 
+       playerobj[currentPlayer].bonus(); // add 35 to total score
 
        //CMD Line
        System.out.println("current score is:" + playerobj[currentPlayer].getScore()); // print our current score and score for that specific roll
@@ -346,40 +343,44 @@ public void setup(int p) // setup inital values
        return playerobj;
    }
 
-   public void saveGame() // MIGHT implement save option
-   { // try block neccessarry due to ioexception  
-    try            
-    {
-      FileWriter writeSave = new FileWriter("saveGame.txt");
-      for(int i =0; i<13; i++)
-      {
-      writeSave.write("boo"); 
-      }
+   public boolean getBonus()
+   {
+     int bonus=0;
+     for(int i=0;i<6;i++)
+     bonus+=playerobj[currentPlayer].getScoreboard(i);
 
-
-      
-      writeSave.close();   
-    } catch (IOException e) 
-    {
-   //     input.setText("Issue with save file");
-        return;
-    }
-    
+     if (bonus>62)
+     return true;
+     else 
+     return false;
    }
 
    public int winner()
    {
-     int winner=-3; // indicates tie!
-
+     int winner=0; // Tracks what player wins or if its a tie. In 1p games tracks if one player beat 220
+     int tie=0; // track tie
+     int bestScore = playerobj[0].getScore(); // tracks best score
+     
      if(playerobj.length>1) // if more than one player
      {
       for (int i=0; i<playerobj.length-1; i++)
       {
-        if(playerobj[i].getScore()<playerobj[i+1].getScore())
-        winner=i+1;
-        else if(playerobj[i].getScore()>playerobj[i+1].getScore())
-        winner=i;
+        if(bestScore<playerobj[i+1].getScore())
+        {
+          winner=i+1;
+          bestScore=playerobj[i+1].getScore();
+        }
       }
+
+      for(int i=0; i<playerobj.length; i++) // check if game ended in a tie
+      {
+        if(bestScore==playerobj[i].getScore())
+        tie++;
+      }
+
+      if(tie>1) // if more than one player had the best score than it is a tie
+      return -3;
+
       return winner;
     }
     else // only one player
@@ -390,8 +391,4 @@ public void setup(int p) // setup inital values
     return -1; // if they did score more
 
    }
-   /*public void loadGame() // MIGHT implement load from save option
-   {
-    File saveFile = new File("saveGame.txt");
-   }*/
 }
