@@ -1,7 +1,7 @@
 
 // GAME LOGIC Libraries
 import java.util.Random; // roll dice
-import java.util.stream.Collectors;
+import java.util.stream.Collectors; // to use on list in categories function to score certain choices
 
 import javafx.scene.control.TextField;
 
@@ -13,15 +13,15 @@ public class logic {
 
     //Game Logic Vars
 private int players; // number of players
-private int currentPlayer = 0; // increment by one every main loop,  helps track current player
-private Random rand = new Random(); // random for roll
+private int currentPlayer = 0; // increment by one every main loop, tracks current player
+private Random rand = new Random(); // random for roll values
 private int reroll = 3; // tracks rerolls available
 Multiplayer[] playerobj; // holds each player obj, including their scoreboard, and overall score
 int[] toggleDice = new int[] {0,0,0,0,0}; // track if dice is being reserved or not
 
 public void setup(int p) // setup inital values
 {
-    System.out.print("Function started with given parameter "+ players + " ");
+    System.out.print("Function started with given parameter "+ players + " "); // command line
     players=p;
     playerobj = new Multiplayer[players];
     
@@ -40,11 +40,14 @@ public void setup(int p) // setup inital values
             input.setText("Invalid value! Please enter a positive number");
             return false;
         }
-            // Checks that passed in int is greater than 0s
-        if(Integer.parseInt(input.getText())<1 || Integer.parseInt(input.getText())>100)
-        return false;
+            // Checks that passed in int is greater than 0s and less than max numbers of players which is 20 cause why not
+        if(Integer.parseInt(input.getText())<1 || Integer.parseInt(input.getText())>20)
+        {
+          input.setText("Invalid value! Number to small or large!");
+          return false;
+        }
 
-        System.out.println(players); 
+        System.out.println(players); // command line
         setup( Integer.parseInt(input.getText())); // CALLS SETUP HERE
         return true;
     }
@@ -69,7 +72,7 @@ public void setup(int p) // setup inital values
       else
       toggleDice[i]=0;
 
-      System.out.println("toggling dice" + i + "val:" + toggleDice[i]);
+      System.out.println("toggling dice" + i + "val:" + toggleDice[i]); // CMD Line
     }
 
     public void setDiceToggle(int idex,int val) // set toggle value in array
@@ -88,13 +91,13 @@ public void setup(int p) // setup inital values
 
          if(gameOver(playerobj)) // if the game is over return 0 and print game over... to be changed to results or winner screen in gui
          {
-          System.out.print("GAME OVER");
+          System.out.print("GAME OVER");//CMD LINE
           return -2; // change to bool or kill statement
          }
  
          if(fullScorecard(playerobj[currentPlayer])) // if a player's scorecard is full then return -1
          {
-           System.out.println("Player is out of categories to score!");
+           System.out.println("Player is out of categories to score!");//CMD LINE
            return -1; 
          }
 
@@ -104,7 +107,7 @@ public void setup(int p) // setup inital values
          return 0;
          }
         
-       System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN");
+       System.out.println("\nPLAYER: "+ (currentPlayer+1) + "'s TURN"); // CMD LINE
        reroll--; // reset reroll
       
        
@@ -122,29 +125,29 @@ public void setup(int p) // setup inital values
         
 //CMD LINE
        for(int i =0; i < playerobj[currentPlayer].getRollSize(); i++) // print out roll
-         System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  
+         System.out.print("\t"+ playerobj[currentPlayer].getRoll(i));  //CMD LINE
  
-       System.out.println("\nREROLL?"); // prompt for reroll 
+       System.out.println("\nREROLL?"); // prompt for reroll, command Line
        return 1;
-       //CMD LINE
+//CMD LINE
        }
 
        
        public boolean yahtzeeScoreRoll(int choice) // internal score logic
        {
-        System.out.print(choice);
+        System.out.print(choice); //CMD LINE
 
         if(choice==12) //  if choice is yahtzee, special case
        {
         if(playerobj[currentPlayer].getScoreboard(choice -1)==0 || (playerobj[currentPlayer].getScoreboard(choice -1)>0 && categories(playerobj[currentPlayer].getRollList(), choice)==0))
         { // if invalid yahztee choice then deny score 
-          System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
+          System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice, CMD LINE
           return false;
         }
        } // if category other than yahtzee has already been selected, deny score
         else if(playerobj[currentPlayer].getScoreboard(choice -1)>-1 && choice !=12) //  while choice is taken alert user and prompt for input
        {
-         System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice
+         System.out.println("Option already taken or invalid" ); // + option picked by player AKA choice, COMMAND LINE
          return false;
        }
        
@@ -158,15 +161,15 @@ public void setup(int p) // setup inital values
        //CMD Line
        System.out.println("current score is:" + playerobj[currentPlayer].getScore()); // print our current score and score for that specific roll
        System.out.println("Score for category " +choice+ " is " + playerobj[currentPlayer].getScoreboard(choice -1));
-       
-       setCurrentPlayer();
        //CMD Line
+
+       setCurrentPlayer(); // increment currentplayer/next player
        return true;
      }
  
    
  
-   public int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation category chosen by user
+   public int categories(ArrayList<Integer> rolls, int choice) // method to determine score of that roll in relation to category chosen by user
    {
      int score = 0;
      playerobj[currentPlayer].sortRoll(); // sort in between print out for user readibility
@@ -327,23 +330,23 @@ public void setup(int p) // setup inital values
        return reroll;
    }
 
-   public int getSboard(int i)
+   public int getSboard(int i) // get value of a scoreboard category
    {
      return playerobj[currentPlayer].getScoreboard(i);
    }
 
    
-   public int getTotalScore(int i)
+   public int getTotalScore(int i) // get a players score
    {
      return playerobj[i].getScore();
    }
 
-   public Multiplayer[] getMulti() // get multiplayer obj.. used in gui setup of scene 2
+   public Multiplayer[] getMulti() // get multiplayer obj.. used in gui setup of scene 2 to set dice reserved/not reserved image
    {
        return playerobj;
    }
 
-   public boolean getBonus()
+   public boolean getBonus() // add bonus if reached by player
    {
      int bonus=0;
      for(int i=0;i<6;i++)
@@ -355,7 +358,7 @@ public void setup(int p) // setup inital values
      return false;
    }
 
-   public int winner()
+   public int winner() // Determine which player wins, includes tie and loss for 1p
    {
      int winner=0; // Tracks what player wins or if its a tie. In 1p games tracks if one player beat 220
      int tie=0; // track tie

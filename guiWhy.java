@@ -17,6 +17,7 @@ import javafx.scene.image.*;
 
 public class guiWhy extends Application // Start of Class
 {
+  // Private variables consist of dynamic gui vars or game logic variables
   
    private logic playerobj = new logic(); // holds each player obj, including their scoreboard, and overall score
    private int setButtonArr; // used to setOnAction for button array categories
@@ -34,10 +35,10 @@ public class guiWhy extends Application // Start of Class
     private Image rules = new Image("resources/helpviewSmallEdited.png");
     private Image rulesSmall = new Image("resources/helpviewSmaller.png");
 
- //   private Label numberPlayers = new Label("     Number of players: " + playerobj.getPlayers()); // label that contain's the amount of players playing
     private Label rollVal = new Label("You rolled a: "); // value of the roll
     private Label curPlayer = new Label("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // who the current player is
     private Label numRolls = new Label("Rolls Left: "+ playerobj.getreroll()); // number of rolls available per turn
+    private Label leadScore = new Label(""); // Tracks whos winning/how many points p1 needs to win
     private Label availableChoice = new Label(""); // tells player if option is already taken
     private Label EndWinner = new Label(""); // tells player if option is already taken
     
@@ -59,9 +60,13 @@ public class guiWhy extends Application // Start of Class
     public void start(Stage primaryStage) {
         window = primaryStage; // set window to primary stage
 
-        ///////////////////////////////////////////////// START OF LAYOUT 1
+
 
         
+        ///////////////////////////////////////////////// START OF LAYOUT 1 ////////////////////////////////////
+
+        // GRAPHICS TITLE
+
       Canvas canvas = new Canvas(350,75 ); // canvas upon gc graphics title will be drawn
 
       GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -73,36 +78,15 @@ public class guiWhy extends Application // Start of Class
      gc.setFont( theFont );
      gc.fillText( "Yahtzee!", 90, 35 );
      gc.strokeText( "Yahtzee!",90, 35 );
-     //Image dice = new Image( "resources/dice.png" );
-     //gc.drawImage( dice, 130, 100 );      // END OF GRAPHICS DRAW
-
-
-    for (int i =0; i<5; i++) // set up dice images
-    {
-      int repetitive =i; // avoid final issue with i on setOnAction reserveDice call
-     diceButtons[i] = new Button("",new ImageView(diceNullImg)); //set up intial dice images (change dice to array so, this could be 1 for loop)
-     diceButtons[i].setStyle("-fx-background-color: transparent;"); // set buttons to transparent so only the image is shown
-     diceButtons[i].setOnAction(e->{ reserveDice(repetitive);}); 
-    }
-
-        Image ximg = new Image("resources/x.png"); // default image for dice
-        Button xbut=new Button("", new ImageView(ximg));
-        xbut.setStyle("-fx-background-color: transparent;");
-        Label olabel = new Label("= Reroll Dice"); // set up welcome label
-
-        Image oimg = new Image("resources/o.png"); // default image for dice
-        Button obut=new Button("", new ImageView(oimg));
-        obut.setStyle("-fx-background-color: transparent;");
-        Label xlabel = new Label("= Don't Reroll/Reserve Dice"); // set up welcome label
-                
-        xlabel.setPadding(new Insets(6,0,0,-15)); // set paddin on dice images
-        olabel.setPadding(new Insets(6,0,0,-15));
 
      
-        //Button 1
+        //TITLE LABEL, USED AS invisible vertical spacer
+
         Label label1 = new Label("Yahtzee!"); // set up welcome label
         label1.setFont(Font.font("Arial Black",25));
         label1.setVisible(false);
+
+        // PLAY BUTTON AND INSTRUCTIONS BUTTON
 
         Button startGame = new Button("Click me to play"); // button that when clicked, sets player (# of players) to textfield input and switches scenes
         Button instruct = new Button("Instructions"); // FINISH?
@@ -112,14 +96,49 @@ public class guiWhy extends Application // Start of Class
         instruct.setOnAction(e->{instructbutton();});
 
         //Layout 1 - elements in vertical column for main menu/start screen
+
         VBox layout1 = new VBox(20);
         layout1.setAlignment(Pos.BASELINE_CENTER);
         layout1.getChildren().addAll(label1, canvas, input, startGame, instruct);
         scene1 = new Scene(layout1, 350, 420);
 
-        ///////////////////////////////////////////////////////////////////////////////////// START OF LAYOUT 2
 
-        //Button 2
+
+
+
+
+        ////////////////////////////////////////// START OF LAYOUT 2 /////////////////////////////////////////////
+
+
+        // DICE IMAGE INTIALIZATION
+
+        for (int i =0; i<5; i++) // set up dice images
+        {
+          int repetitive =i; // avoid final issue with i on setOnAction reserveDice call
+         diceButtons[i] = new Button("",new ImageView(diceNullImg)); //set up intial dice images (change dice to array so, this could be 1 for loop)
+         diceButtons[i].setStyle("-fx-background-color: transparent;"); // set buttons to transparent so only the image is shown
+         diceButtons[i].setOnAction(e->{ reserveDice(repetitive);}); 
+        }
+    
+
+        // IMAGE AND LABELS INDICATING MEANING OF X AND O DICE 
+
+            Image ximg = new Image("resources/x.png"); // default image for dice
+            Button xbut=new Button("", new ImageView(ximg));
+            xbut.setStyle("-fx-background-color: transparent;");
+            Label xlabel = new Label("= Don't Reroll/Reserve Dice"); // label that indicates dice that look like x.png are reserved
+    
+            Image oimg = new Image("resources/o.png"); // default image for dice
+            Button obut=new Button("", new ImageView(oimg));
+            obut.setStyle("-fx-background-color: transparent;");
+            Label olabel = new Label("= Reroll Dice"); // label that indicates dice that look like o.png are rerolled
+                    
+            xlabel.setPadding(new Insets(6,0,0,-15)); // set paddin on dice images
+            olabel.setPadding(new Insets(6,0,0,-15));
+    
+
+        // MENU BUTTON TO GO BACK TO TITLE SCREEN
+
         Button Menu = new Button("Back to the Main Menu");
         Menu.setOnAction(e -> {
           window.setScene(scene1);}); // change scene to main menu and saveGame func
@@ -129,6 +148,8 @@ public class guiWhy extends Application // Start of Class
             window.setScene(scene1);});
 
 
+        // TOP BORDER OF BORDERLAYOUT
+
         HBox topBorder = new HBox(); // HBox and Border Top, Contains main menu, current player, dice help/tip images
         topBorder.setPadding(new Insets(10,0,0,22));
         topBorder.setSpacing(10);
@@ -136,18 +157,26 @@ public class guiWhy extends Application // Start of Class
         HBox.setMargin(curPlayer,new Insets(5,0,0,0));
         topBorder.getChildren().addAll(Menu,curPlayer,obut,olabel,xbut,xlabel);  //add items to border top
 
-           // Button Roll
+
+        // MIDDLE SECTION OF BORDERLAYOUT
+
+           // BUTTON ROLL
+
            Button roll = new Button("Roll!"); // button to roll dice 
            roll.setFont(Font.font("Arial Black",20));
            roll.setTranslateY(-10);
 
            roll.setOnAction(e->{rollSet();}); // roll 5 di, calls rollLogic function
 
+           // FOUR HBOXS THAT WILL BE PUT IN VBOX TO MAKE UP MIDDLE SECTION
+
         HBox innercenterBorder1 = new HBox(); // Hbox for center row 1, contains row images with roll values
         HBox innercenterBorder2 = new HBox(30); // Hbox for center row 2, contains roll button, numeric roll values, number of rolls left and if availableChoice label
         HBox innercenterBorder3 = new HBox(); // center row 3, with minimal scoreboard for all players and label with winner
         HBox innercenterBorder4 = new HBox(); // center row 3, with minimal scoreboard for all players and label with winner
 
+            // ASSIGNING EACH HBOX ITS GUI ELEMENTS AND POSITIONING
+       
         innercenterBorder1.getChildren().addAll(diceButtons[0],diceButtons[1],diceButtons[2],diceButtons[3],diceButtons[4]);
         innercenterBorder1.setAlignment(Pos.CENTER);
 
@@ -158,8 +187,8 @@ public class guiWhy extends Application // Start of Class
         innercenterBorder3.setAlignment(Pos.CENTER);
 
         
-        EndWinner.setFont(Font.font("Arial Black",14));
-        innercenterBorder3.getChildren().addAll(EndWinner);
+        EndWinner.setFont(Font.font("Arial Black",16));
+        innercenterBorder3.getChildren().addAll(leadScore,EndWinner); // add lead score and endwinner to innerBorder 3
         innercenterBorder3.setPadding(new Insets(-40, 0, 0, 0));
         
         innercenterBorder4.setAlignment(Pos.CENTER);
@@ -170,15 +199,20 @@ public class guiWhy extends Application // Start of Class
         helpfulHand.setImage(rulesSmall);
         innercenterBorder4.getChildren().addAll(helpfulHand);
 
+            // VBOX THAT MAKES UP MIDDLE SECTION
+
         VBox centerBorder = new VBox(40); // main vbox for center border that contains inner rowsS
         centerBorder.getChildren().addAll(innercenterBorder1,innercenterBorder2,innercenterBorder3,innercenterBorder4);
 
-        //LAYOUT 2 grid and border
+
+        // EAST BORDER OF BORDERLAYOUT
+
         GridPane eastBorder = new GridPane(); // scene 2 element put into a FlowPane. Categories[]
         eastBorder.setVgap(20);
         eastBorder.setPadding(new Insets(10,0,-40,10));
 
-        
+        // WEST BORDER OF BORDERLAYOUT
+
         GridPane westBorder = new GridPane(); //sBoard, extended scoredboard for each player, shown on their turn
         westBorder.setVgap(25);
         westBorder.setPadding(new Insets(30,0,0,10));
@@ -189,8 +223,11 @@ public class guiWhy extends Application // Start of Class
         westBorder.getChildren().add(sboardTitle);
     
       
+        // DECLARATION OF BORDERLAYOUT FOR GAME SCREEN
 
         BorderPane layout2 = new BorderPane(); // scene 2 main gui layout
+
+        // INTIALIZE CATERGORY BUTTONS AND SCOREBOARD
 
         for (setButtonArr=0; setButtonArr<13; setButtonArr++ ) // set button text to correct numbered option.
         {
@@ -210,7 +247,11 @@ public class guiWhy extends Application // Start of Class
           westBorder.add(sBoard[i],0,i+1); // add each button to the eastborder vbox // i + 1 to avoid aces and scoreboard on same cell
         }
 
+        // ADD SCORE TO End of cATEGORY
         westBorder.add(totalScore,0,14); // add total score to end of scoredboard
+
+
+        // ADD BORDERS TO BORDERLAYOUT
 
         layout2.setRight(eastBorder); // set border values for main scene2 borderlayout
         layout2.setLeft(westBorder);
@@ -220,16 +261,23 @@ public class guiWhy extends Application // Start of Class
         BorderPane.setMargin(centerBorder, new Insets(50,0,0,0)); // insets for each border
         BorderPane.setMargin(westBorder, new Insets(0,12,0,12));
         BorderPane.setMargin(eastBorder, new Insets(0,20,0,0));
+        
+
+        ///////////// INSTRUCTIONS WINDOW GUI / LAYOUT 3 ////////////////
 
         VBox Layout3 = new VBox(); // layout 3, for Instructions page
        
         Layout3.setPadding(new Insets(15, 12, 15, 12));
         Layout3.setSpacing(10);
 
+        // TEXTBOX WITH INSTRUCTIONS
+
         textarea.setWrapText(true); // textbox for instructions
         textarea.setEditable(false);
         //textarea.setFont(Font.font("Arial",20));
   
+        // IMAGE DEFINING ROLL CATEGORIES
+
         final ImageView selectedImage = new ImageView();  // image for instructions with roll examples
         selectedImage.setImage(rules);
         Layout3.setAlignment(Pos.CENTER);
@@ -239,39 +287,50 @@ public class guiWhy extends Application // Start of Class
         scene3 = new Scene(Layout3, 1030, 770);
         scene3.getStylesheets().add("resources/style_1.css"); // set style sheet for instructions
 
-        //Display scene 1 at first
+        // INITAL WINDOW SETUP. SET SCREEN TO TITLE SCREEN AND SHOW
         scene1.getStylesheets().add("resources/style.css"); // style sheet for main menu
         window.setScene(scene1);
         window.setTitle("Yahtzee!");
         window.show();
     }
 
-    //    START OF GUI LOGIC, DYNAMIC vars
-    public void setPlayerGui(TextField input)
+    /////////////////  START OF GUI LOGIC, DYNAMIC vars handling ///////////
+
+    public void setPlayerGui(TextField input) // Initial Game window gui setup and calls to logic class
     {    
-      playerobj = new logic();
-      curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
+      playerobj = new logic(); // new playerobj, containing every player
+      
+      // RESET LABELS IN THE CASE USER EXITS GAME AND STARTS A NEW ONE 
+      curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn"); // reset curplayer text
       EndWinner.setText(""); // reset winner text
       availableChoice.setText("");// reset available text
-      if(playerobj.setPlayer(input))
+      leadScore.setText("");
+      leadScore.setFont(Font.font("Arial Black",14));
+
+      if(playerobj.setPlayer(input)) // if gameLogic is ok with text input
       {
-        //numberPlayers.setText("     Number of players: "+playerobj.getPlayers());
         window.setScene(scene2); // switch scenes
         curLabel(); // reset labels
       }
       else return;
     }
 
-    public void curLabel()
+    public void curLabel() // reset gui elements and/or set elements according to the current player 
     {
+      // Labels and CMD LINE CALL
        curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
        System.out.print(playerobj.getCurPlayer());
        numRolls.setText("Rolls Left: "+ playerobj.getreroll());
        rollVal.setText("You rolled a: ");
 
-       for(int i =0; i<5; i++)
-       diceButtons[i].setGraphic(new ImageView(diceNullImg)); // reset dice images to dicenull/?
 
+      // RESET DICE IMAGES
+       for(int i =0; i<5; i++)
+       diceButtons[i].setGraphic(new ImageView(diceNullImg)); // reset dice images to dicenull
+
+
+      // SET SCOREBOARD TO CURRENT PLAYER VALUES
+      
         for(int i=0;i<13;i++) // set scoreboard
         {
         if(playerobj.getSboard(i)!=-1)
@@ -280,22 +339,22 @@ public class guiWhy extends Application // Start of Class
         sBoard[i].setText(scoreOptions[i]+" -  "); // if other players categories values are still default
         }
 
-        if(playerobj.getTotalScore(playerobj.getCurPlayer())==0)
+        if(playerobj.getTotalScore(playerobj.getCurPlayer())==0) // if score is zero for category
         totalScore.setText("  Score:  - ");
-        else if(playerobj.getBonus())
+        else if(playerobj.getBonus()) // if bonus has been reached
         totalScore.setText("  Score: : "+(playerobj.getTotalScore(playerobj.getCurPlayer())-35) +" \n  + 35 Bonus! " );
         else
         totalScore.setText("  Score: : "+playerobj.getTotalScore(playerobj.getCurPlayer()) );
         
     }
 
-    public void reserveDice(int idex)
+    public void reserveDice(int idex) // Toggle gui dice and logic calls for reserving/rolling dice
     {
-      if(rollVal.getText()!="You rolled a: ")
+      if(rollVal.getText()!="You rolled a: ") // if player has rolled the dice
       {
-        playerobj.toggleDice(idex);
+        playerobj.toggleDice(idex); // toggle dice to be rolled or not logically
 
-        for(int i =0; i<5; i++)
+        for(int i =0; i<5; i++) // toggle dice images
         {          
           if (playerobj.getDiceToggle(i)==0)
           diceButtons[i].setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i))+".png")));
@@ -306,27 +365,28 @@ public class guiWhy extends Application // Start of Class
       }
     }
 
-    public void rollSet()
+    public void rollSet() // Control game logic and gui logic when player rolls. Includes scoring, determining winner, amount of rolls left, if player can select a category yet
     {
       if(playerobj.getreroll()!=0)
-      rollVal.setText("You rolled a: "); // reset roll label
+      rollVal.setText("You rolled a: "); // reset roll label/ if player still has rolls left
 
-      int test = playerobj.YahtzeeRollLogic();
+      int test = playerobj.YahtzeeRollLogic(); // test if player is out of rolls, out of turns or if the game has ended
       
       if(test==0)
       {
         numRolls.setText("OUT OF ROLLS!");
         return;
       }
-      if(test==-1) // change players
+      if(test==-1) // change players if current player is out of turns
       {
         playerobj.setCurrentPlayer(); 
         curLabel();
         return;
       }
-      if(test==-2) //end game and display winner
+      if(test==-2) //end game and display winner if all players are out of turns
       {
         int winner = playerobj.winner();
+        leadScore.setText(""); // Hide leadscore game is over
 
         if(winner>-1)
         EndWinner.setText("PLAYER "+(winner+1)+" WINS with "+playerobj.getTotalScore(winner)+" points!");
@@ -342,13 +402,12 @@ public class guiWhy extends Application // Start of Class
         
       }
 
-      //if(playerobj.getreroll()!=0)
-      numRolls.setText("Rolls Left: "+ playerobj.getreroll());
+      numRolls.setText("Rolls Left: "+ playerobj.getreroll()); // reset rolls left label
 
-      for(int i = 0; i < 5; i++) // set roll label to sorted roll
+      for(int i = 0; i < 5; i++) // set roll label to roll values
         rollVal.setText(rollVal.getText()+ " " +playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i));
 
-        for(int i =0; i<5; i++)
+        for(int i =0; i<5; i++) // set dice images between rolls
         {          
           if (playerobj.getDiceToggle(i)==0)
           diceButtons[i].setGraphic(new ImageView(new Image("resources/dice"+(playerobj.getMulti()[playerobj.getCurPlayer()].getRoll(i))+".png")));
@@ -357,27 +416,38 @@ public class guiWhy extends Application // Start of Class
         }
     }
 
-    public void scoreRoll(int choice)
+    public void scoreRoll(int choice) // gui and logic calls for scoring/picking a category
     {
-           if(rollVal.getText()=="You rolled a: ")
+           if(rollVal.getText()=="You rolled a: ")  // if player tries to score without rolling
        {
-        System.out.println("You need to roll first!");
+        System.out.println("You need to roll first!"); // CMD LINE PRINT
+        availableChoice.setText("You Need to Roll First!");// SET LABEL TO OPTION TAKEN!
         return;
        }
 
-       if(playerobj.yahtzeeScoreRoll(choice))
+       if(playerobj.yahtzeeScoreRoll(choice)) // if player choice is valid/not taken
        {
+         // Set appropiate label values
        rollVal.setText("You rolled a: ");
        numRolls.setText("Rolls Left: "+ playerobj.getreroll());
        curPlayer.setText("Player "+(playerobj.getCurPlayer()+1)+"'s Turn");
-       
-       for(int i =0; i<5; i++)
+
+       //Change leadplayer
+       if(playerobj.getPlayers()!=1 && playerobj.winner()!=-3) // more than 1 player playing change score leader if neccessary
+       leadScore.setText("Current Leader is Player " + (playerobj.winner()+1)+" With " + playerobj.getTotalScore(playerobj.winner()) +" Point(s)!");
+       else if(playerobj.getPlayers()!=1) // then 2 or more players are tied
+       leadScore.setText("It is Currently a Tie!");
+       else// if one player calculate how many points they need
+       leadScore.setText("Player 1 Needs " + (220-playerobj.getTotalScore(0)) + " Points to Win!");
+
+
+       for(int i =0; i<5; i++) // reset dice toggle values to 0/ to be rolled
        playerobj.setDiceToggle(i,0);
 
-       for(int i =0; i<5; i++)
+       for(int i =0; i<5; i++) // reset dice images
         diceButtons[i].setGraphic(new ImageView(diceNullImg)); // reset dice images to dicenull/?
 
-        for(int i=0;i<13;i++) // set scoreboard
+        for(int i=0;i<13;i++) // set scoreboard for next player
         {
         if(playerobj.getSboard(i)!=-1)
         sBoard[i].setText(scoreOptions[i]+": "+playerobj.getSboard(i)+ " ");
@@ -385,7 +455,7 @@ public class guiWhy extends Application // Start of Class
         sBoard[i].setText(scoreOptions[i]+" -  "); // if other players categories values are still default
         }
 
-        if(playerobj.getTotalScore(playerobj.getCurPlayer())==0)
+        if(playerobj.getTotalScore(playerobj.getCurPlayer())==0) // set total score for next player
         totalScore.setText("  Score:  - ");
         else if(playerobj.getBonus())
         totalScore.setText("  Score: : "+(playerobj.getTotalScore(playerobj.getCurPlayer())-35) +" \n  + 35 Bonus! " );
@@ -399,7 +469,7 @@ public class guiWhy extends Application // Start of Class
        availableChoice.setText("Option Already Taken!");// SET LABEL TO OPTION TAKEN!
     }
 
-    private void instructbutton()
+    private void instructbutton() // set scene to instructions when instructions button is clicked
     {
       window.setScene(scene3);
     }

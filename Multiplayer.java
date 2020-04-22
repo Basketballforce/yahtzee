@@ -3,9 +3,9 @@ import java.util.ArrayList; // for arraylist
 
 public class Multiplayer
 {
-    private ArrayList<Integer> rolls = new ArrayList<Integer>(5);
-    private int[] scoreBoard = new int[13];
-    private int score;
+    private ArrayList<Integer> rolls = new ArrayList<Integer>(5); // hold roll values for players
+    private int[] scoreBoard = new int[13]; // hold score for each category
+    private int score; // hold total score
     
 
     public Multiplayer()
